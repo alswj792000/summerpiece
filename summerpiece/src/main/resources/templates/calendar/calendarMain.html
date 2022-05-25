@@ -6,6 +6,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     let calendarEl = document.getElementById('calendar');
+    let draggedEventIsAllDay ;
 
     let calendar = new FullCalendar.Calendar(calendarEl, {
       headerToolbar: {
@@ -60,6 +61,31 @@
       },
       editable: true,
       dayMaxEvents: true, // allow "more" link when too many events
+
+      // 일정 드래그 앤 드롭
+      eventDragStart: function (event, jsEvent, ui, view) {
+        draggedEventIsAllDay = event.allDay;
+      },
+
+      eventDrop: function (event, delta, reverFunc, jsEvent, ui, view) {
+        // 주, 일 view일 때 종일 <-> 시간 변경 불가능하도록 설정
+        if(view.type === 'agendaWeek' || view.type === 'agandaDay'){
+          if(draggedEventIsAllDay !== event.allDay){
+            alert('드래그 앤 드롭으로 종일 <-> 시간 간 변경은 불가능합니다.');
+            location.reload();
+            return false;
+          }
+        }
+
+        // 수정된 날짜 반영
+        let newDates = calDateWhenDragnDrop(event);
+
+        // 드롭 일정 업데이트
+        $.ajax({
+
+        });
+      },
+
       events: function(info, successCallback, failureCallback){
         $.ajax({
           url: '/calendar/schedule',
@@ -113,6 +139,39 @@
 
     calendar.render();
   });
+
+  function calDateWhenDragnDrop(event) {
+    // 드랍 시 수정된 날짜 반영하기
+    let newDates = {
+      startDate: '',
+      endDate: ''
+    }
+
+    // 날짜와 시간이 모두 같은 경우
+    if(!event.end){
+      event.end = event.start;
+    }
+
+    // all day 하루
+    if(event.allDay && event.end === event.start){
+      newDates.startDate = moment(event.start._d).format('YYYY-MM-DD');
+      newDates.endDate = newDates.startDate;
+    }
+
+    // all day 2일 이상
+    else if (event.allDay && event.end !== null) {
+      newDates.startDate = moment(event.start._d).format('YYYY-MM-DD');
+      newDates.endDate = moment(event.end._d).subtract(1, 'days').format('YYYY-MM-DD');
+    }
+
+    //all day가 아님
+    else if (!event.allDay) {
+      newDates.startDate = moment(event.start._d).format('YYYY-MM-DD HH:mm');
+      newDates.endDate = moment(event.end._d).format('YYYY-MM-DD HH:mm');
+    }
+
+    return newDates;
+  }
 </script>
 
 <body>
@@ -338,6 +397,7 @@
 
   <script src="/lib/jquery-ui-1.9.2.custom.min.js"></script>
   <script src="/lib/fullcalendar/fullcalendar.min.js"></script>
+  <script src="/lib/fullcalendar/moment.min.js"></script>
 <!--  <script src="/lib/calendar-conf-events.js"></script>-->
 
 </body>
