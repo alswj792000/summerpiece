@@ -10,6 +10,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -27,16 +30,32 @@ public class CalendarController {
     @GetMapping("/calendar/schedule")
     @ResponseBody
     public List<Calendar> getScheduleList(@AuthenticationPrincipal Member member){
-
         List<Calendar> calendarList = calendarService.findCalendarList(member.getId());
-
         return calendarList;
     }
 
     @PostMapping("/calendar/schedule")
     @ResponseBody
-    public String addSchedule(@AuthenticationPrincipal Member member, @ModelAttribute Calendar calendar){
-        calendar.calendarInfoInit(member);
+    public String addSchedule(@AuthenticationPrincipal Member member, @RequestParam String calendarContent,
+                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay){
+        Calendar calendar = new Calendar();
+
+        LocalDateTime calendarStartDate;
+        LocalDateTime calendarEndDate;
+        DateTimeFormatter df;
+
+        if(isAllDay){
+            df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            calendarStartDate = LocalDate.parse(calendarStart, df).atStartOfDay();
+            calendarEndDate = LocalDate.parse(calendarEnd, df).atStartOfDay();
+        } else {
+            df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            calendarStartDate = LocalDateTime.parse(calendarStart, df);
+            calendarEndDate = LocalDateTime.parse(calendarEnd, df);
+        }
+
+        calendar.calendarInfoInit(member, calendarContent, calendarStartDate, calendarEndDate, isAllDay);
+
         calendarService.saveCalendar(calendar);
         return calendar.getId().toString();
     }

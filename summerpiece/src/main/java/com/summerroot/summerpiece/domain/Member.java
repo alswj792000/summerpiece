@@ -1,5 +1,6 @@
 package com.summerroot.summerpiece.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -42,6 +43,7 @@ public class Member implements UserDetails {
     private List<Reply> replies = new ArrayList<>();
 
     @OneToMany(mappedBy = "calendarWriter", cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<Calendar> calendars = new ArrayList<>();
 
     /** by윤수님 */

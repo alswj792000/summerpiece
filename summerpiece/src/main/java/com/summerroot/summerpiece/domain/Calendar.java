@@ -1,5 +1,8 @@
 package com.summerroot.summerpiece.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.summerroot.summerpiece.converter.BooleanToYNConverter;
 import lombok.Getter;
 
@@ -26,10 +29,16 @@ public class Calendar {
     private String calendarColor;
 
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "member_id")
     private Member calendarWriter;
 
-    public void calendarInfoInit(Member calendarWriter){
+    public void calendarInfoInit(Member calendarWriter, String calendarContent, LocalDateTime calendarStartDate, LocalDateTime calendarEndDate, boolean isAllDay){
+        this.calendarContent = calendarContent;
+        this.calendarStartDate = calendarStartDate;
+        this.calendarEndDate = calendarEndDate;
+        this.isAllDay = isAllDay;
         this.calendarModifyDate = LocalDateTime.now();
         this.calendarState = CalendarState.Y;
         this.calendarWriter = calendarWriter;
