@@ -1,6 +1,5 @@
 package com.summerroot.summerpiece.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.summerroot.summerpiece.converter.BooleanToYNConverter;
@@ -34,7 +33,7 @@ public class Calendar {
     @JoinColumn(name = "member_id")
     private Member calendarWriter;
 
-    public void calendarInfoInit(Member calendarWriter, String calendarContent, LocalDateTime calendarStartDate, LocalDateTime calendarEndDate, boolean isAllDay){
+    public void calendarInfoInit(Member calendarWriter, String calendarContent, LocalDateTime calendarStartDate, LocalDateTime calendarEndDate, boolean isAllDay, String calendarColor){
         this.calendarContent = calendarContent;
         this.calendarStartDate = calendarStartDate;
         this.calendarEndDate = calendarEndDate;
@@ -42,6 +41,7 @@ public class Calendar {
         this.calendarModifyDate = LocalDateTime.now();
         this.calendarState = CalendarState.Y;
         this.calendarWriter = calendarWriter;
+        this.calendarColor = calendarColor;
     }
 
     public void deleteCalendar(){

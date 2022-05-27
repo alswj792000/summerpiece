@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,17 +28,30 @@ public class CalendarController {
         return "calendar/calendarMain";
     }
 
-    @GetMapping("/calendar/schedule")
+    @GetMapping("/calendar/schedule-list")
     @ResponseBody
     public List<Calendar> getScheduleList(@AuthenticationPrincipal Member member){
         List<Calendar> calendarList = calendarService.findCalendarList(member.getId());
         return calendarList;
     }
 
+    @GetMapping("/calendar/schedule")
+    public String addScheduleView(){
+        return "calendar/calendarInsert";
+    }
+
+    @GetMapping("/calendar/schedule/{date}")
+    public String addScheduleView2(Model model, @PathVariable String date){
+        model.addAttribute("date", date);
+        model.addAttribute("allDay", true);
+
+        return "calendar/calendarInsert";
+    }
+
     @PostMapping("/calendar/schedule")
     @ResponseBody
     public String addSchedule(@AuthenticationPrincipal Member member, @RequestParam String calendarContent,
-                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay){
+                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
         Calendar calendar = new Calendar();
 
         LocalDateTime calendarStartDate;
@@ -54,20 +68,23 @@ public class CalendarController {
             calendarEndDate = LocalDateTime.parse(calendarEnd, df);
         }
 
-        calendar.calendarInfoInit(member, calendarContent, calendarStartDate, calendarEndDate, isAllDay);
+        System.out.println(calendarStartDate);
+        System.out.println(calendarEndDate);
+
+        calendar.calendarInfoInit(member, calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
 
         calendarService.saveCalendar(calendar);
         return calendar.getId().toString();
     }
 
     @GetMapping("/calendar/schedule/{id}")
-    @ResponseBody
-    public Calendar getSchedule(@PathVariable Long id){
+    public String detailSchedule(@PathVariable Long id){
+        System.out.println(id);
         Calendar calendar = calendarService.findCalendar(id);
-        return calendar;
+        return "calendar/calendarDetail";
     }
 
-    @PutMapping("/calendar/schadule/{id}")
+    @PutMapping("/calendar/schedule/{id}")
     @ResponseBody
     public String updateSchedule(@PathVariable("id") Long id, @ModelAttribute Calendar calendar){
         calendar.updateCalendar(id);
