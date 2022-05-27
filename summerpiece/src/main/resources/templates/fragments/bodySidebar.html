@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<aside class="sidebar" th:fragement="bodySidebar">
+<aside class="sidebar" th:fragment="bodySidebar(currentMenu)">
     <div id="sidebar" class="nav-collapse ">
         <ul class="sidebar-menu" id="nav-accordion">
             <p class="centered">
@@ -34,33 +34,10 @@
                 </ul>
             </li>
             <li class="sub-menu">
-                <a href="javascript:;">
+                <a href="javascript:;" th:classappend="${currentMenu == 'calendar'} ? active">
                     <i class="fa fa-cogs"></i>
-                    <span>Components</span>
+                    <span>Calendar</span>
                 </a>
-                <ul class="sub">
-                    <li>
-                        <a href="grids.html">Grids</a>
-                    </li>
-                    <li>
-                        <a href="/calendar/view">Calendar</a>
-                    </li>
-                    <li>
-                        <a href="gallery.html">Gallery</a>
-                    </li>
-                    <li>
-                        <a href="todo_list.html">Todo List</a>
-                    </li>
-                    <li>
-                        <a href="dropzone.html">Dropzone File Upload</a>
-                    </li>
-                    <li>
-                        <a href="inline_editor.html">Inline Editor</a>
-                    </li>
-                    <li>
-                        <a href="file_upload.html">Multiple File Upload</a>
-                    </li>
-                </ul>
             </li>
             <li class="sub-menu">
                 <a href="javascript:;">
@@ -115,7 +92,7 @@
                 </ul>
             </li>
             <li class="sub-menu">
-                <a class="active" href="javascript:;">
+                <a href="javascript:;">
                     <i class="fa fa-th"></i>
                     <span>Data Tables</span>
                 </a>
