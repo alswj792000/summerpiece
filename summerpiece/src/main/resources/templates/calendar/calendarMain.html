@@ -22,11 +22,13 @@
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay addSchedule'
       },
+      allDaySlot: true,
       initialDate: new Date(),
       navLinks: true, // can click day/week names to navigate views
       selectable: true,
       selectMirror: true,
       locale: 'ko',
+      timeFormat: 'HH:mm',
       views: {
         month: {eventLimit : 5}
       },
