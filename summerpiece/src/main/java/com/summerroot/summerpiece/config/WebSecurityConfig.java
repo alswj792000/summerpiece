@@ -32,6 +32,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception { // http 관련 인증 설정
+        http.csrf().disable(); // csrf 방지 (보안에 취약)
         http
                 .authorizeRequests() // 접근에 대한 인증 설정
                 .antMatchers("/login", "/signup", "/member").permitAll() // 누구나 접근 허용
