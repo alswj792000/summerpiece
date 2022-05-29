@@ -35,23 +35,20 @@ public class CalendarController {
         return calendarList;
     }
 
-    @GetMapping("/calendar/schedule")
+    @GetMapping("/calendar/schedule/one")
     public String addScheduleView(){
         return "calendar/calendarInsert";
     }
 
-    @GetMapping("/calendar/schedule/{date}")
-    public String addScheduleView2(Model model, @PathVariable String date){
+    @GetMapping("/calendar/schedule/one/{date}")
+    public String addScheduleViewWithDate(Model model, @PathVariable String date){
         model.addAttribute("date", date);
         model.addAttribute("allDay", true);
 
         return "calendar/calendarInsert";
     }
 
-    @PostMapping("/calendar/schedule")
-    @ResponseBody
-    public String addSchedule(@AuthenticationPrincipal Member member, @RequestParam String calendarContent,
-                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
+    public Calendar addNew(Member member, String calendarContent, String calendarStart, String calendarEnd, boolean isAllDay, String calendarColor){
         Calendar calendar = new Calendar();
 
         LocalDateTime calendarStartDate;
@@ -68,13 +65,26 @@ public class CalendarController {
             calendarEndDate = LocalDateTime.parse(calendarEnd, df);
         }
 
-        System.out.println(calendarStartDate);
-        System.out.println(calendarEndDate);
-
         calendar.calendarInfoInit(member, calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
 
         calendarService.saveCalendar(calendar);
+
+        return calendar;
+    }
+
+    @PostMapping("/calendar/schedule")
+    @ResponseBody
+    public String addSchedule(@AuthenticationPrincipal Member member, @RequestParam String calendarContent,
+                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
+        Calendar calendar = addNew(member, calendarContent, calendarStart, calendarEnd, isAllDay, calendarColor);
         return calendar.getId().toString();
+    }
+
+    @PostMapping("/calendar/schedule/one")
+    public String addOneSchedule(@AuthenticationPrincipal Member member, @RequestParam String calendarContent,
+                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
+        addNew(member, calendarContent, calendarStart, calendarEnd, isAllDay, calendarColor);
+        return "redirect:/calendar/view";
     }
 
     @GetMapping("/calendar/schedule/{id}")

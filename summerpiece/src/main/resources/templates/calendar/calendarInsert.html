@@ -23,8 +23,8 @@
         <div class="col-lg-12">
           <div class="form-panel">
             <h4 class="mb"><i class="fa fa-angle-right"></i> 일정 등록</h4>
-            <form class="form-horizontal style-form" method="post" id="calendarForm" action="/calendar/schedule">
-              <input type="hidden" name="_method" value="put">
+            <form class="form-horizontal style-form" id="calendarForm">
+<!--              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />-->
               <div class="form-group">
                 <label class="col-sm-2 control-label">일정 내용</label>
                 <div class="col-sm-10">
@@ -35,7 +35,7 @@
               <div class="form-group">
                 <label class="control-label col-sm-2">시작 날짜</label>
                 <div class="col-md-3 col-xs-11">
-                  <input class="form-control form-control-inline" size="16" type="date" id="startDate" th:value="${startDate}">
+                  <input class="form-control form-control-inline" size="16" type="date" id="startDate" th:value="${date}">
                   <span class="help-block">일정 시작 날짜를 입력하세요.</span>
                 </div>
                 <div class="col-md-3 col-xs-11 schedule-time">
@@ -43,14 +43,14 @@
                   <span class="help-block">일정 시작 시간을 입력하세요.</span>
                 </div>
                 <label class="checkbox-inline">
-                  <input type="checkbox" style="position: relative; top:1.5px;" id="allDay" value="false" name="isAllDay"> 종일
+                  <input type="checkbox" style="position: relative; top:1.5px;" id="allDay" value="false" name="isAllDay" th:checked="${date != null}"> 종일
                 </label>
               </div>
 
               <div class="form-group">
                 <label class="control-label col-sm-2">종료 날짜</label>
                 <div class="col-md-3 col-xs-11">
-                  <input class="form-control form-control-inline" size="16" type="date" id="endDate">
+                  <input class="form-control form-control-inline" size="16" type="date" id="endDate" th:value="${date}">
                   <span class="help-block">일정 종료 날짜를 입력하세요.</span>
                 </div>
                 <div class="col-md-3 col-xs-11 schedule-time">
@@ -62,8 +62,8 @@
               <div class="form-group">
                 <label class="control-label col-sm-2">일정 색상</label>
                 <div class="col-sm-10">
-                  <select class="form-control" name="color" id="edit-color">
-                    <option value="#ffffff">기본</option>
+                  <select class="form-control" name="calendarColor" id="edit-color">
+                    <option value="#A0A0A0FF">기본</option>
                     <option value="#D25565" style="background:#D25565; color: white;">빨간색</option>
                     <option value="#9775fa" style="background:#9775fa; color: white;">보라색</option>
                     <option value="#ffa94d" style="background:#ffa94d; color: white;">주황색</option>
@@ -77,10 +77,10 @@
                   <span class="help-block">일정 색상을 선택하세요.</span>
                 </div>
               </div>
-              <input type="hidden" name="calendarStartStr" id="calendarStartStr">
-              <input type="hidden" name="calendarEndStr" id="calendarEndStr">
+              <input type="hidden" name="calendarStart" id="calendarStart">
+              <input type="hidden" name="calendarEnd" id="calendarEnd">
               <div class="form-group btns">
-                <button type="button" onclick="goSubmit();" class="btn btn-primary">수정</button>
+                <button type="button" onclick="goSubmit();" class="btn btn-primary">등록</button>
                 <button type="button" class="btn btn-danger">취소</button>
               </div>
             </form>
@@ -113,8 +113,10 @@
   });
 
   // 종일 체크
-  $('#allDay').click(function () {
-    const isChecked = $(this).is(':checked');
+  $('#allDay').click(checkedAllDay());
+
+  function checkedAllDay(){
+    const isChecked = $('#allDay').is(':checked');
 
     if(isChecked){
       $('.schedule-time').hide();
@@ -123,7 +125,7 @@
       $('.schedule-time').show();
       $('#allDay').val('false');
     }
-  });
+  }
 
   // submit
   function goSubmit() {
@@ -173,12 +175,19 @@
       end = endDate.val();
     }
 
-    $('#calendarStartStr').val(start);
-    $('#calendarEndStr').val(end);
+    $('#calendarStart').val(start);
+    $('#calendarEnd').val(end);
 
+    const submitForm = $('#calendarForm');
+    submitForm.attr("action", "/calendar/schedule/one");
+    submitForm.attr("method", "post");
     $('#calendarForm').submit();
 
   }
+
+  $(function () {
+    checkedAllDay();
+  });
 
 </script>
 

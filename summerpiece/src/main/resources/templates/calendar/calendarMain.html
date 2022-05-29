@@ -13,7 +13,7 @@
         addSchedule: {
           text: '일정 등록',
           click: function(event) {
-            location.href = "/calendar/schedule";
+            location.href = "/calendar/schedule/one";
           }
         }
       },
@@ -35,21 +35,21 @@
         let calendarEnd = moment(arg.end).subtract(1, 'days').format('YYYY-MM-DD');
 
         if(calendarStart == calendarEnd){
-          location.href = "/calendar/schedule/" + calendarStart;
+          location.href = "/calendar/schedule/one/" + calendarStart;
 
         } else{
           let calendarContent = prompt('일정 내용을 입력하세요.');
           if (calendarContent) {
             let isAllDay = arg.allDay;
 
-            calendarEnd = moment(arg.end).add(1, 'days').format('YYYY-MM-DD');
+            // calendarEnd = moment(arg.end).add(1, 'days').format('YYYY-MM-DD');
 
             let data = {
               "calendarContent":calendarContent,
               "calendarStart":calendarStart,
               "calendarEnd":calendarEnd,
               "isAllDay":isAllDay,
-              "calendarColor":"#ffffff"
+              "calendarColor":"#A0A0A0FF"
             }
 
             $.ajax({
@@ -57,18 +57,13 @@
               method: 'POST',
               data: data,
               dataType: 'text',
-              beforeSend: function (jqXHR, settings) {
-                let header = $("meta[name='_csrf_header']").attr("content");
-                let token = $("meta[name='_csrf']").attr("content");
-                jqXHR.setRequestHeader(header, token);
-              },
               success: function(data){
                 calendar.addEvent({
                   title: calendarContent,
                   start: calendarStart,
                   end: calendarEnd,
                   allDay: isAllDay,
-                  color: "#ffffff"
+                  color: "#A0A0A0FF"
                 });
               },
               error: function (request, status, error){
@@ -134,12 +129,15 @@
               $.each(data, function(index, element) { // data의 요소 순회
                 let calendarStartDate = new Date(element.calendarStartDate);
                 let calendarEndDate = new Date(element.calendarEndDate);
+                let isAllDay = element.isAllDay;
                 let calendarColor = element.calendarColor;
+
 
                 events.push({
                   title: element.calendarContent,
                   start: calendarStartDate,
                   end: calendarEndDate,
+                  allDay: isAllDay,
                   url: "/calendar/schedule/"+element.id,
                   color: calendarColor
                 });
