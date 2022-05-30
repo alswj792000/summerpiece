@@ -88,9 +88,35 @@ public class CalendarController {
     }
 
     @GetMapping("/calendar/schedule/{id}")
-    public String detailSchedule(@PathVariable Long id){
-        System.out.println(id);
+    public String detailSchedule(@PathVariable Long id, Model model){
         Calendar calendar = calendarService.findCalendar(id);
+        String startDate;
+        String endDate;
+
+        String startTime = null;
+        String endTime = null;
+
+
+        if(calendar.isAllDay()){
+            startDate = calendar.getCalendarStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            endDate = calendar.getCalendarEndDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } else {
+            String[] s = calendar.getCalendarStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).split("\\s");
+            String[] e = calendar.getCalendarEndDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).split("\\s");
+
+            startDate = s[0];
+            startTime = s[1];
+
+            endDate = e[0];
+            endTime = e[1];
+        }
+
+        model.addAttribute("c", calendar);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("startTime", startTime);
+        model.addAttribute("endTime", endTime);
+
         return "calendar/calendarDetail";
     }
 
