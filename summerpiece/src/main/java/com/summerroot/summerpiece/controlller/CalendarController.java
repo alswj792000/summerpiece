@@ -122,9 +122,10 @@ public class CalendarController {
 
     @PutMapping("/calendar/schedule/{id}")
     @ResponseBody
-    public String updateSchedule(@PathVariable("id") Long id, @ModelAttribute Calendar calendar){
-        calendar.updateCalendar(id);
-        calendarService.updateCalendar(calendar);
+    public String updateSchedule(@PathVariable("id") Long id, @RequestParam String calendarContent, @RequestParam String calendarStart,
+                                 @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
+//        calendar.updateCalendar(id);
+//        calendarService.updateCalendar(calendar);
 
         return id.toString();
     }
