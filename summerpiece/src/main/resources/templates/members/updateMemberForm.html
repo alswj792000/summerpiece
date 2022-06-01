@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/fragments/header.html :: header"/>
+<link href='/lib/fullcalendar/main.css' rel='stylesheet' />
+<script src="/lib/fullcalendar/main.js"></script>
+
+<body>
+<section id="container">
+  <header th:replace="/fragments/bodyHeader.html :: bodyHeader" />
+  <aside th:replace="/fragments/bodySidebar.html :: bodySidebar(currentMenu='calendar')" />
+
+    <!--main content start-->
+    <section id="main-content">
+      <section class="wrapper">
+        <div class="row mt">
+          <div class="col-lg-12 mt">
+            <div class="row content-panel">
+              <div class="panel-body">
+                <div id="edit" class="tab-pane">
+                  <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 detailed">
+                      <h4 class="mb">Personal Information</h4>
+                      <form role="form" class="form-horizontal">
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label"> Avatar</label>
+                          <div class="col-lg-6">
+                            <input type="file" id="exampleInputFile" class="file-pos">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">Email</label>
+                          <div class="col-lg-6">
+                            <input type="text" placeholder=" " id="email" class="form-control">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">Name</label>
+                          <div class="col-lg-6">
+                            <input type="text" placeholder=" " id="name" class="form-control">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">Nickname</label>
+                          <div class="col-lg-6">
+                            <input type="text" placeholder=" " id="nickname" class="form-control">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">Phone</label>
+                          <div class="col-lg-6">
+                            <input type="text" placeholder=" " id="phone" class="form-control">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <div class="col-lg-offset-2 col-lg-10">
+                            <button class="btn btn-theme" type="submit">Save</button>
+                            <button class="btn btn-theme04" type="button">Cancel</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                    <div class="col-lg-8 col-lg-offset-2 detailed">
+                      <h4 class="mb">Change Password</h4>
+                      <form role="form" class="form-horizontal">
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">Old password</label>
+                          <div class="col-lg-6">
+                            <input type="text" placeholder=" " id="old-password" class="form-control">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">New password</label>
+                          <div class="col-lg-6">
+                            <input type="text" placeholder=" " id="new-password" class="form-control">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">Confirm new password</label>
+                          <div class="col-lg-6">
+                            <input type="text" placeholder=" " id="confirm-new-password" class="form-control">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <div class="col-lg-offset-2 col-lg-10">
+                            <button class="btn btn-theme" type="submit">Update password</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                    <div class="col-lg-8 col-lg-offset-2 detailed">
+                      <h4 class="mb">Delete Account</h4>
+                      <button class="btn btn-theme04" type="button">Delete your account</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+    <!--main content end-->
+    <footer th:replace="fragments/footer.html :: footer" />
+  </section>
+
+  <!--script for this page-->
+  <!-- MAP SCRIPT - ALL CONFIGURATION IS PLACED HERE - VIEW OUR DOCUMENTATION FOR FURTHER INFORMATION -->
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASm3CwaK9qtcZEWYa-iQwHaGi3gcosAJc&sensor=false"></script>
+  <script>
+    $('.contact-map').click(function() {
+
+      //google map in tab click initialize
+      function initialize() {
+        var myLatlng = new google.maps.LatLng(40.6700, -73.9400);
+        var mapOptions = {
+          zoom: 11,
+          scrollwheel: false,
+          center: myLatlng,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        var marker = new google.maps.Marker({
+          position: myLatlng,
+          map: map,
+          title: 'Dashio Admin Theme!'
+        });
+      }
+      google.maps.event.addDomListener(window, 'click', initialize);
+    });
+  </script>
+</body>
+
+</html>
