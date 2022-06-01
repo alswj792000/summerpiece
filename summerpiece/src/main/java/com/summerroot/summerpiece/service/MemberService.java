@@ -5,7 +5,6 @@ import com.summerroot.summerpiece.domain.Member;
 import com.summerroot.summerpiece.repository.MemberRepository;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,7 +41,13 @@ public class MemberService implements UserDetailsService {
                 .pwd(memberDto.getPwd()).build()).getId();
     }
 
-    public Member findOnd(int id) {
+    public Member findOne(Long id) {
         return memberRepository.findOne(id);
+    }
+
+    public void updateMember(Long memberId, String pwd, String name, String nickname, String phone) {
+        Member member = memberRepository.findOne(memberId);
+
+        member.updateMember(pwd, name, nickname, phone);
     }
 }

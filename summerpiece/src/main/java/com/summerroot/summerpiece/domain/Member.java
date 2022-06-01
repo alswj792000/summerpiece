@@ -46,15 +46,6 @@ public class Member implements UserDetails {
     @JsonBackReference
     private List<Calendar> calendars = new ArrayList<>();
 
-    /** by윤수님 */
-//    public Member(String email, String pwd, String name, String nickname, String phone) {
-//        this.email = email;
-//        this.pwd = pwd;
-//        this.name = name;
-//        this.nickname = nickname;
-//        this.phone = phone;
-//    }
-
     /** by민정 : 스프링부트 */
     @Builder
     public Member(String email, String pwd, String name, String nickname, String phone, String auth) {
@@ -115,4 +106,10 @@ public class Member implements UserDetails {
         return true; // 사용 가능
     }
 
+    public void updateMember(String pwd, String name, String nickname, String phone) {
+        this.pwd = pwd;
+        this.name = name;
+        this.nickname = nickname;
+        this.phone = phone;
+    }
 }
