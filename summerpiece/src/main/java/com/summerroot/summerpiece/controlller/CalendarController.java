@@ -52,19 +52,10 @@ public class CalendarController {
     public Calendar addNew(Member member, String calendarContent, String calendarStart, String calendarEnd, boolean isAllDay, String calendarColor){
         Calendar calendar = new Calendar();
 
-        LocalDateTime calendarStartDate;
-        LocalDateTime calendarEndDate;
+        String pattern = makePattern(isAllDay);
 
-        String pattern;
-
-        if(isAllDay){
-            pattern = "yyyy-MM-dd";
-        } else {
-            pattern = "yyyy-MM-dd HH:mm:ss";
-        }
-
-        calendarStartDate = changeTimeFormat(calendarStart, pattern);
-        calendarEndDate = changeTimeFormat(calendarEnd, pattern);
+        LocalDateTime calendarStartDate = changeTimeFormat(calendarStart, pattern);
+        LocalDateTime calendarEndDate = changeTimeFormat(calendarEnd, pattern);
 
         calendar.calendarInfoInit(member, calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
 
@@ -76,6 +67,14 @@ public class CalendarController {
     public LocalDateTime changeTimeFormat(String date, String pattern){
         DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern);
         return LocalDate.parse(date, df).atStartOfDay();
+    }
+
+    public String makePattern(boolean isAllDay){
+        if(isAllDay){
+            return "yyyy-MM-dd";
+        } else {
+            return "yyyy-MM-dd HH:mm:ss";
+        }
     }
 
     @PostMapping("/calendar/schedule")
@@ -131,22 +130,13 @@ public class CalendarController {
                                  @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
         Calendar calendar = calendarService.findCalendar(id);
 
-        LocalDateTime calendarStartDate;
-        LocalDateTime calendarEndDate;
+        String pattern = makePattern(isAllDay);
 
-        String pattern;
-
-        if(isAllDay){
-            pattern = "yyyy-MM-dd";
-        } else {
-            pattern = "yyyy-MM-dd HH:mm:ss";
-        }
-
-        calendarStartDate = changeTimeFormat(calendarStart, pattern);
-        calendarEndDate = changeTimeFormat(calendarEnd, pattern);
+        LocalDateTime calendarStartDate = changeTimeFormat(calendarStart, pattern);
+        LocalDateTime calendarEndDate = changeTimeFormat(calendarEnd, pattern);
 
         calendar.updateCalendar(calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
-        calendarService.updateCalendar(calendar);
+        calendarService.saveCalendar(calendar);
 
         System.out.println("여기로 들어오는지 확인");
 
@@ -154,10 +144,12 @@ public class CalendarController {
     }
 
     @DeleteMapping("/calendar/schedule/{id}")
-    @ResponseBody
     public String deleteSchedule(@PathVariable("id") Long id){
-        calendarService.deleteCalendar(id);
-        return id.toString();
+        Calendar calendar = calendarService.findCalendar(id);
+        calendar.deleteCalendar();
+
+        calendarService.saveCalendar(calendar);
+        return "redirect:/calendar/view";
     }
 
     @ExceptionHandler(TypeMismatchException.class)

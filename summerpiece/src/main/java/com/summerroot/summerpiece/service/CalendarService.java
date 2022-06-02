@@ -24,17 +24,6 @@ public class CalendarService {
         calendarRepository.save(calendar);
     }
 
-    @Transactional
-    public void deleteCalendar(Long calendarId) {
-        Calendar findCalendar = calendarRepository.findOne(calendarId);
-        findCalendar.deleteCalendar();
-    }
-
-    @Transactional
-    public void updateCalendar(Calendar calendar) {
-        calendarRepository.save(calendar);
-    }
-
     public Calendar findCalendar(Long id) {
         return calendarRepository.findOne(id);
     }
