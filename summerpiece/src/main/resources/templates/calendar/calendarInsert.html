@@ -3,10 +3,14 @@
 
 <head th:replace="/fragments/header.html :: header"/>
 <style>
-  .btns{
-    display: flex;
-    justify-content: space-between;
-  }
+    .btns{
+        float: right;
+        padding: 20px;
+    }
+
+    button {
+        margin: 3px;
+    }
 </style>
 
 <body>
@@ -81,7 +85,7 @@
               <input type="hidden" name="calendarEnd" id="calendarEnd">
               <div class="form-group btns">
                 <button type="button" onclick="goSubmit();" class="btn btn-primary">등록</button>
-                <button type="button" class="btn btn-danger">취소</button>
+                <button type="button" class="btn btn-info" onclick="goList();">취소</button>
               </div>
             </form>
           </div>
@@ -189,6 +193,10 @@
     checkedAllDay();
   });
 
+  // 목록으로
+  function goList() {
+      location.href = "/calendar/schedule-list";
+  }
 </script>
 
 <script src="/lib/jquery-ui-1.9.2.custom.min.js"></script>

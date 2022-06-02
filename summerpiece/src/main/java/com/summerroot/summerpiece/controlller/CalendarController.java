@@ -32,6 +32,7 @@ public class CalendarController {
     @ResponseBody
     public List<Calendar> getScheduleList(@AuthenticationPrincipal Member member){
         List<Calendar> calendarList = calendarService.findCalendarList(member.getId());
+
         return calendarList;
     }
 
@@ -121,12 +122,16 @@ public class CalendarController {
     }
 
     @PutMapping("/calendar/schedule/{id}")
-    @ResponseBody
-    public String updateSchedule(@PathVariable("id") Long id, @ModelAttribute Calendar calendar){
-        calendar.updateCalendar(id);
-        calendarService.updateCalendar(calendar);
+    public String updateSchedule(@PathVariable("id") Long id, @RequestParam String calendarContent,
+                                 @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
+//        Calendar calendar = ;// 조회
+//
+//        calendar.updateCalendar(id);
+//        calendarService.updateCalendar(calendar);
 
-        return id.toString();
+        System.out.println("여기로 들어오는지 확인");
+
+        return "redirect:/calendar/schedule/" + id;
     }
 
     @DeleteMapping("/calendar/schedule/{id}")

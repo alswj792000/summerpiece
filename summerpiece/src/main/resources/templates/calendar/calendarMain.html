@@ -46,8 +46,6 @@
           if (calendarContent) {
             let isAllDay = arg.allDay;
 
-            // calendarEnd = moment(arg.end).add(1, 'days').format('YYYY-MM-DD');
-
             let data = {
               "calendarContent":calendarContent,
               "calendarStart":calendarStart,
@@ -57,7 +55,7 @@
             }
 
             if(isAllDay && calendarStart !== calendarEnd){
-              calendarEnd = moment(calendarEnd).add(1, 'days'); // 이틀 이상 종일 일정인 경우 달력에 표시할 때 하루를 더해야 정상 출력됨
+              calendarEnd = moment(arg.end).format('YYYY-MM-DD');
             }
 
             $.ajax({
@@ -123,31 +121,21 @@
           success: function(data) {
             let events = [];
 
-            // 현재 시간
-            let now = new Date();
-            let year = now.getFullYear();
-            let month = now.getMonth();
-            let day = now.getDate();
-            let hours = now.getHours();
-            let minutes = now.getMinutes();
-
-            let today = new Date(year, month, day, hours, minutes);
-
             if(data != null){
               $.each(data, function(index, element) { // data의 요소 순회
-                let calendarStartDate = new Date(element.calendarStartDate);
-                let calendarEndDate = new Date(element.calendarEndDate);
-                let isAllDay = element.isAllDay;
+                let calendarStart = moment(new Date(element.calendarStartDate)).format('YYYY-MM-DD');
+                let calendarEnd = moment(new Date(element.calendarEndDate)).format('YYYY-MM-DD');
+                let isAllDay = element.allDay;
                 let calendarColor = element.calendarColor;
 
-                if(isAllDay && calendarStartDate !== calendarEndDate){
-                  calendarEndDate = moment(calendarEndDate).add(1, 'days');
+                if(isAllDay && element.calendarStartDate !== element.calendarEndDate){
+                  calendarEnd = moment(new Date(element.calendarEndDate)).add(1, 'days').format('YYYY-MM-DD');
                 }
 
                 events.push({
                   title: element.calendarContent,
-                  start: calendarStartDate,
-                  end: calendarEndDate,
+                  start: calendarStart,
+                  end: calendarEnd,
                   allDay: isAllDay,
                   url: "/calendar/schedule/"+element.id,
                   color: calendarColor

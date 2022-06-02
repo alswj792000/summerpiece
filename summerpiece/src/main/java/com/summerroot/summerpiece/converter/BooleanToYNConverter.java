@@ -15,6 +15,6 @@ public class BooleanToYNConverter implements AttributeConverter<Boolean, String>
     // Y/N을 Boolean 값으로 변경
     @Override
     public Boolean convertToEntityAttribute(String yn) {
-        return "Y".equalsIgnoreCase(yn);
+        return "Y".equals(yn);
     }
 }
