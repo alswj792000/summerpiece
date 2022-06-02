@@ -106,10 +106,13 @@ public class Member implements UserDetails {
         return true; // 사용 가능
     }
 
-    public void updateMember(String pwd, String name, String nickname, String phone) {
-        this.pwd = pwd;
+    public void updateMember(String name, String nickname, String phone) {
         this.name = name;
         this.nickname = nickname;
         this.phone = phone;
+    }
+
+    public void updatePwd(String newPwd) {
+        this.pwd = newPwd;
     }
 }

@@ -45,9 +45,17 @@ public class MemberService implements UserDetailsService {
         return memberRepository.findOne(id);
     }
 
-    public void updateMember(Long memberId, String pwd, String name, String nickname, String phone) {
+    public void updateMember(Long memberId, String name, String nickname, String phone) {
         Member member = memberRepository.findOne(memberId);
 
-        member.updateMember(pwd, name, nickname, phone);
+        member.updateMember(name, nickname, phone);
+    }
+
+    public void updatePwd(Long memberId, String newPwd) {
+        Member member = memberRepository.findOne(memberId);
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        member.updatePwd(encoder.encode(newPwd));
     }
 }

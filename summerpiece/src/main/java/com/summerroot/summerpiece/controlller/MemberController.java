@@ -10,10 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,7 +55,17 @@ public class MemberController {
 
     @PostMapping("/members/{memberId}/update")
     public String updateMember(@PathVariable("memberId") Long memberId, @ModelAttribute("dto") MemberDto dto) {
-        memberService.updateMember(memberId, dto.getPwd(), dto.getName(), dto.getNickname(), dto.getPhone());
+        memberService.updateMember(memberId, dto.getName(), dto.getNickname(), dto.getPhone());
+
+        return "redirect:/members/{memberId}/update";
+    }
+
+    @PostMapping("/members/{memberId}/updatePwd")
+    public String updateMemberPwd(@PathVariable("memberId") Long memberId, @RequestParam("oldPwd") String oldPwd, @RequestParam("newPwd") String newPwd) {
+        // 원래 비밀번호가 일치하는지 비교
+
+        // 새로운 비밀번호로 변경
+        memberService.updatePwd(memberId, newPwd);
 
         return "redirect:/members/{memberId}/update";
     }

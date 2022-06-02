@@ -61,23 +61,23 @@
                     </div>
                     <div class="col-lg-8 col-lg-offset-2 detailed">
                       <h4 class="mb">Change Password</h4>
-                      <form role="form" class="form-horizontal">
+                      <form role="form" class="form-horizontal" th:action="@{'/members/'+ ${#authentication.principal.id}} + '/updatePwd'" method="post">
                         <div class="form-group">
                           <label class="col-lg-2 control-label">Old password</label>
                           <div class="col-lg-6">
-                            <input type="text" placeholder=" " id="old-password" class="form-control">
+                            <input type="password" class="form-control" name="oldPwd">
                           </div>
                         </div>
                         <div class="form-group">
                           <label class="col-lg-2 control-label">New password</label>
                           <div class="col-lg-6">
-                            <input type="text" placeholder=" " id="new-password" class="form-control">
+                            <input type="password" class="form-control" name="newPwd">
                           </div>
                         </div>
                         <div class="form-group">
                           <label class="col-lg-2 control-label">Confirm new password</label>
                           <div class="col-lg-6">
-                            <input type="text" placeholder=" " id="confirm-new-password" class="form-control">
+                            <input type="password" class="form-control">
                           </div>
                         </div>
                         <div class="form-group">
@@ -127,6 +127,8 @@
       }
       google.maps.event.addDomListener(window, 'click', initialize);
     });
+
+    // 비밀번호와 비밀번호 확인이 일치하는지 확인하는 메소드 필요
   </script>
 </body>
 
