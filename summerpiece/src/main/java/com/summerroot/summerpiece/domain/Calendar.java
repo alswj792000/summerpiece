@@ -34,21 +34,21 @@ public class Calendar {
     private Member calendarWriter;
 
     public void calendarInfoInit(Member calendarWriter, String calendarContent, LocalDateTime calendarStartDate, LocalDateTime calendarEndDate, boolean isAllDay, String calendarColor){
-        this.calendarContent = calendarContent;
-        this.calendarStartDate = calendarStartDate;
-        this.calendarEndDate = calendarEndDate;
-        this.isAllDay = isAllDay;
-        this.calendarModifyDate = LocalDateTime.now();
-        this.calendarState = CalendarState.Y;
+        updateCalendar(calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
         this.calendarWriter = calendarWriter;
-        this.calendarColor = calendarColor;
     }
 
     public void deleteCalendar(){
         this.calendarState = CalendarState.N;
     }
 
-    public void updateCalendar(Long id){
-        this.id = id;
+    public void updateCalendar(String calendarContent, LocalDateTime calendarStartDate, LocalDateTime calendarEndDate, boolean isAllDay, String calendarColor){
+        this.calendarContent = calendarContent;
+        this.calendarStartDate = calendarStartDate;
+        this.calendarEndDate = calendarEndDate;
+        this.isAllDay = isAllDay;
+        this.calendarModifyDate = LocalDateTime.now();
+        this.calendarState = CalendarState.Y;
+        this.calendarColor = calendarColor;
     }
 }

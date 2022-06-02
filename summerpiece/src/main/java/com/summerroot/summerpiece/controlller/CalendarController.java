@@ -54,23 +54,28 @@ public class CalendarController {
 
         LocalDateTime calendarStartDate;
         LocalDateTime calendarEndDate;
-        DateTimeFormatter df;
+
+        String pattern;
 
         if(isAllDay){
-            df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            calendarStartDate = LocalDate.parse(calendarStart, df).atStartOfDay();
-            calendarEndDate = LocalDate.parse(calendarEnd, df).atStartOfDay();
+            pattern = "yyyy-MM-dd";
         } else {
-            df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            calendarStartDate = LocalDateTime.parse(calendarStart, df);
-            calendarEndDate = LocalDateTime.parse(calendarEnd, df);
+            pattern = "yyyy-MM-dd HH:mm:ss";
         }
+
+        calendarStartDate = changeTimeFormat(calendarStart, pattern);
+        calendarEndDate = changeTimeFormat(calendarEnd, pattern);
 
         calendar.calendarInfoInit(member, calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
 
         calendarService.saveCalendar(calendar);
 
         return calendar;
+    }
+
+    public LocalDateTime changeTimeFormat(String date, String pattern){
+        DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern);
+        return LocalDate.parse(date, df).atStartOfDay();
     }
 
     @PostMapping("/calendar/schedule")
@@ -124,10 +129,24 @@ public class CalendarController {
     @PutMapping("/calendar/schedule/{id}")
     public String updateSchedule(@PathVariable("id") Long id, @RequestParam String calendarContent,
                                  @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
-//        Calendar calendar = ;// 조회
-//
-//        calendar.updateCalendar(id);
-//        calendarService.updateCalendar(calendar);
+        Calendar calendar = calendarService.findCalendar(id);
+
+        LocalDateTime calendarStartDate;
+        LocalDateTime calendarEndDate;
+
+        String pattern;
+
+        if(isAllDay){
+            pattern = "yyyy-MM-dd";
+        } else {
+            pattern = "yyyy-MM-dd HH:mm:ss";
+        }
+
+        calendarStartDate = changeTimeFormat(calendarStart, pattern);
+        calendarEndDate = changeTimeFormat(calendarEnd, pattern);
+
+        calendar.updateCalendar(calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
+        calendarService.updateCalendar(calendar);
 
         System.out.println("여기로 들어오는지 확인");
 
