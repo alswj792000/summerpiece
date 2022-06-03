@@ -219,13 +219,15 @@
   }
   
   function goDelete() {
-    const submitForm = $('#calendarForm');
-    let url = "/calendar/schedule/" + [[${c.id}]];
+    if(window.confirm("정말 삭제하시겠습니까?")){
+      const submitForm = $('#calendarForm');
+      let url = "/calendar/schedule/" + [[${c.id}]];
 
-    $('#formMethod').val('delete');
+      $('#formMethod').val('delete');
 
-    submitForm.attr("action", url);
-    submitForm.submit();
+      submitForm.attr("action", url);
+      submitForm.submit();
+    }
   }
 
 </script>

@@ -14,7 +14,7 @@ public class CalendarRepository {
     private final EntityManager em;
 
     public List<Calendar> findCalendarList(Long memberId) {
-        String jpql = "select c from Calendar c where c.calendarWriter.id = " + memberId;
+        String jpql = "select c from Calendar c where c.calendarWriter.id = " + memberId + "and c.calendarState = 'Y'";
 
         return em.createQuery(jpql, Calendar.class).getResultList();
     }
