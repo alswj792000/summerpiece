@@ -118,11 +118,11 @@
   });
 
   // 종일 체크
-  $('#allDay').click(checkedAllDay());
+  $('#allDay').click(checkedAllDay);
 
   function checkedAllDay(){
     const isChecked = $('#allDay').is(':checked');
-
+    console.log("dfsfd");
     if(isChecked){
       $('.schedule-time').hide();
       $('#allDay').val('true');
@@ -196,7 +196,7 @@
 
     // 색상 선택되도록 하기
     let calendarColor = "[[${c.calendarColor}]]";
-    console.log(calendarColor);
+
     if(calendarColor){
       $('#edit-color').val(calendarColor).prop("selected", true);
     }
