@@ -15,7 +15,13 @@ spring:
     console:
       enabled: true
 
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+
