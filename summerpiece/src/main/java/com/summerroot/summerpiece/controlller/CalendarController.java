@@ -127,7 +127,7 @@ public class CalendarController {
 
     @PutMapping("/calendar/schedule/{id}")
     public String updateSchedule(@PathVariable("id") Long id, @RequestParam String calendarContent,
-                                 @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
+                                 @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor, @ModelAttribute Calendar c){
         Calendar calendar = calendarService.findCalendar(id);
 
         String pattern = makePattern(isAllDay);
