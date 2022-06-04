@@ -20,6 +20,19 @@ spring:
       filter:
         enabled: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ""
+    password: ""
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+
 logging:
   level:
     org.hibernate.SQL: debug

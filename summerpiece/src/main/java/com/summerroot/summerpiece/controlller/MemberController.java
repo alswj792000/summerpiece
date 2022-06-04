@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
 public class MemberController {
+
+    private final EmailUtil emailUtil;
 
     @Autowired
     MemberSecuRepository memberSecuRepository; // 시큐리티 레파지토리
@@ -68,5 +71,31 @@ public class MemberController {
         memberService.updatePwd(memberId, newPwd);
 
         return "redirect:/members/{memberId}/update";
+    }
+
+    @GetMapping("/checkEmail")
+    public String checkEmailForm() {
+        return "members/checkEmailForm";
+    }
+
+    @PostMapping("/checkEmail")
+    public String checkEmail(@RequestParam("email") String email) {
+        System.out.println("email " + email);
+        String subject = "이메일 인증 코드입니다.";
+        String body = "이메일 인증 코드는 " + "입니다.";
+
+        Map<String, Object> result = emailUtil.sendEmail(email, subject, body);
+
+        return "redirect:/checkCode";
+    }
+
+    @GetMapping("/checkCode")
+    public String checkCodeForm() {
+        return "members/checkCodeForm";
+    }
+
+    @PostMapping("/checkCode")
+    public String checkCode() {
+        return "redirect:/login";
     }
 }

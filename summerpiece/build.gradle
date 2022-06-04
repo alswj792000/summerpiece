@@ -28,7 +28,9 @@ dependencies {
 	// 스프링 시큐리티
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
-	
+
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0")
 
     compileOnly 'org.projectlombok:lombok'
