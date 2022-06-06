@@ -54,8 +54,8 @@ public class CalendarController {
 
         String pattern = makePattern(isAllDay);
 
-        LocalDateTime calendarStartDate = changeTimeFormat(calendarStart, pattern);
-        LocalDateTime calendarEndDate = changeTimeFormat(calendarEnd, pattern);
+        LocalDateTime calendarStartDate = changeTimeFormat(calendarStart, pattern, isAllDay);
+        LocalDateTime calendarEndDate = changeTimeFormat(calendarEnd, pattern, isAllDay);
 
         calendar.calendarInfoInit(member, calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
 
@@ -64,9 +64,13 @@ public class CalendarController {
         return calendar;
     }
 
-    public LocalDateTime changeTimeFormat(String date, String pattern){
+    public LocalDateTime changeTimeFormat(String date, String pattern, boolean isAllDay){
         DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern);
-        return LocalDate.parse(date, df).atStartOfDay();
+        if(isAllDay){
+            return LocalDate.parse(date, df).atStartOfDay();
+        } else {
+            return LocalDateTime.parse(date, df);
+        }
     }
 
     public String makePattern(boolean isAllDay){
@@ -80,14 +84,25 @@ public class CalendarController {
     @PostMapping("/calendar/schedule")
     @ResponseBody
     public String addSchedule(@AuthenticationPrincipal Member member, @RequestParam String calendarContent,
-                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
+                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam(required = false) Boolean isAllDay,
+                              @RequestParam String calendarColor){
+        if(isAllDay == null){
+            isAllDay = false;
+        }
+
         Calendar calendar = addNew(member, calendarContent, calendarStart, calendarEnd, isAllDay, calendarColor);
         return calendar.getId().toString();
     }
 
     @PostMapping("/calendar/schedule/one")
     public String addOneSchedule(@AuthenticationPrincipal Member member, @RequestParam String calendarContent,
-                              @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor){
+                                 @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam(required = false) Boolean isAllDay,
+                                 @RequestParam String calendarColor){
+        if(isAllDay == null){
+            isAllDay = false;
+        }
+
+        System.out.println(calendarStart);
         addNew(member, calendarContent, calendarStart, calendarEnd, isAllDay, calendarColor);
         return "redirect:/calendar/view";
     }
@@ -127,18 +142,17 @@ public class CalendarController {
 
     @PutMapping("/calendar/schedule/{id}")
     public String updateSchedule(@PathVariable("id") Long id, @RequestParam String calendarContent,
-                                 @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam boolean isAllDay, @RequestParam String calendarColor, @ModelAttribute Calendar c){
+                                 @RequestParam String calendarStart, @RequestParam String calendarEnd, @RequestParam(required = false) Boolean isAllDay,
+                                 @RequestParam String calendarColor, @ModelAttribute Calendar c){
         Calendar calendar = calendarService.findCalendar(id);
 
         String pattern = makePattern(isAllDay);
 
-        LocalDateTime calendarStartDate = changeTimeFormat(calendarStart, pattern);
-        LocalDateTime calendarEndDate = changeTimeFormat(calendarEnd, pattern);
+        LocalDateTime calendarStartDate = changeTimeFormat(calendarStart, pattern, isAllDay);
+        LocalDateTime calendarEndDate = changeTimeFormat(calendarEnd, pattern, isAllDay);
 
         calendar.updateCalendar(calendarContent, calendarStartDate, calendarEndDate, isAllDay, calendarColor);
         calendarService.saveCalendar(calendar);
-
-        System.out.println("여기로 들어오는지 확인");
 
         return "redirect:/calendar/schedule/" + id;
     }
