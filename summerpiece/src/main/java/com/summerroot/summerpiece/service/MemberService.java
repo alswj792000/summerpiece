@@ -2,6 +2,7 @@ package com.summerroot.summerpiece.service;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
 import com.summerroot.summerpiece.domain.Member;
+import com.summerroot.summerpiece.domain.MemberStatus;
 import com.summerroot.summerpiece.repository.MemberRepository;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,8 @@ public class MemberService implements UserDetailsService {
                 .name(memberDto.getName())
                 .nickname(memberDto.getNickname())
                 .phone(memberDto.getPhone())
-                .pwd(memberDto.getPwd()).build()).getId();
+                .pwd(memberDto.getPwd())
+                .status(MemberStatus.Y).build()).getId();
     }
 
     public Member findOne(Long id) {
@@ -57,5 +59,20 @@ public class MemberService implements UserDetailsService {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         member.updatePwd(encoder.encode(newPwd));
+    }
+
+    public int deleteMember(Long memberId, String rawPwd) {
+        Member member = memberRepository.findOne(memberId);
+        String encodedPwd = member.getPwd();
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (encoder.matches(rawPwd, encodedPwd)) {
+            member.deleteMember();
+
+            return 200;
+        } else {
+            return 500;
+        }
     }
 }

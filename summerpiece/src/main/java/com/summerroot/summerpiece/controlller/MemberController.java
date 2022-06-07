@@ -102,7 +102,6 @@ public class MemberController {
     @PostMapping("/verifyCode")
     @ResponseBody
     public int checkCode(HttpServletRequest request, @RequestBody Map<String, Object> params) {
-        System.out.println("email = " + params.get("email"));
         String email = (String) params.get("email");
         String code = (String) params.get("code");
         String savedCode = (String) request.getSession().getAttribute(email);
@@ -116,6 +115,14 @@ public class MemberController {
         } else {
             return 500;
         }
+    }
+
+    @PostMapping("/members/{memberId}/delete")
+    @ResponseBody
+    public int deleteMember(@PathVariable("memberId") Long memberId, @RequestBody Map<String, Object> param) {
+        String rawPwd = (String) param.get("pwd");
+
+        return memberService.deleteMember(memberId, rawPwd);
     }
 
     private String createVerificationCode() {
