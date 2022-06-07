@@ -70,44 +70,52 @@ public class MemberController {
     public String updateMemberPwd(@PathVariable("memberId") Long memberId, @RequestParam("oldPwd") String oldPwd, @RequestParam("newPwd") String newPwd) {
         // 원래 비밀번호가 일치하는지 비교
 
-        // 새로운 비밀번호로 변경
         memberService.updatePwd(memberId, newPwd);
 
         return "redirect:/members/{memberId}/update";
     }
 
-    @GetMapping("/checkEmail")
-    public String checkEmailForm() {
-        return "members/checkEmailForm";
+    @GetMapping("/resetPwd")
+    public String resetPwdForm() {
+        return "members/resetPwdForm";
     }
 
-    @PostMapping("/checkEmail")
-    public String checkEmail(HttpServletRequest request, @RequestParam("email") String email) {
+    @PostMapping("/sendCode")
+    @ResponseBody
+    public int sendCode(HttpServletRequest request, @RequestBody Map<String, Object> param) {
+        String email = (String) param.get("email");
         String subject = "이메일 인증 코드입니다.";
         String code = createVerificationCode();
         String body = "이메일 인증 코드는 \"" + code + "\" 입니다.";
 
-        Map<String, Object> result = emailUtils.sendEmail(email, subject, body);
+        int resultCode = emailUtils.sendEmail(email, subject, body);
 
-        int resultCode = (int) result.get("resultCode");
         if (resultCode == 200) {
             HttpSession session = request.getSession();
             session.setAttribute(email, code);
-            return "redirect:/checkCode";
-        } else {
-            // 이메일 발송 오류 처리
-            return "redirect:/login";
+            session.setMaxInactiveInterval(60);
         }
+
+        return resultCode;
     }
 
-    @GetMapping("/checkCode")
-    public String checkCodeForm() {
-        return "members/checkCodeForm";
-    }
+    @PostMapping("/verifyCode")
+    @ResponseBody
+    public int checkCode(HttpServletRequest request, @RequestBody Map<String, Object> params) {
+        System.out.println("email = " + params.get("email"));
+        String email = (String) params.get("email");
+        String code = (String) params.get("code");
+        String savedCode = (String) request.getSession().getAttribute(email);
 
-    @PostMapping("/checkCode")
-    public String checkCode() {
-        return "redirect:/login";
+        if (savedCode == null) {
+            return 500;
+        }
+
+        if (savedCode.equals(code)) {
+            return 200;
+        } else {
+            return 500;
+        }
     }
 
     private String createVerificationCode() {
