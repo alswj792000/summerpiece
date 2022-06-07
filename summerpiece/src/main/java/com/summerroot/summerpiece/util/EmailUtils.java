@@ -1,4 +1,4 @@
-package com.summerroot.summerpiece.controlller;
+package com.summerroot.summerpiece.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class EmailUtil {
+public class EmailUtils {
 
     @Autowired
     private JavaMailSender sender;

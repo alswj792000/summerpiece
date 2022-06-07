@@ -4,6 +4,7 @@ import com.summerroot.summerpiece.DTO.MemberDto;
 import com.summerroot.summerpiece.domain.Member;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import com.summerroot.summerpiece.service.MemberService;
+import com.summerroot.summerpiece.util.EmailUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,13 +15,15 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.Random;
 
 @Controller
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final EmailUtil emailUtil;
+    private final EmailUtils emailUtils;
 
     @Autowired
     MemberSecuRepository memberSecuRepository; // 시큐리티 레파지토리
@@ -79,14 +82,22 @@ public class MemberController {
     }
 
     @PostMapping("/checkEmail")
-    public String checkEmail(@RequestParam("email") String email) {
-        System.out.println("email " + email);
+    public String checkEmail(HttpServletRequest request, @RequestParam("email") String email) {
         String subject = "이메일 인증 코드입니다.";
-        String body = "이메일 인증 코드는 " + "입니다.";
+        String code = createVerificationCode();
+        String body = "이메일 인증 코드는 \"" + code + "\" 입니다.";
 
-        Map<String, Object> result = emailUtil.sendEmail(email, subject, body);
+        Map<String, Object> result = emailUtils.sendEmail(email, subject, body);
 
-        return "redirect:/checkCode";
+        int resultCode = (int) result.get("resultCode");
+        if (resultCode == 200) {
+            HttpSession session = request.getSession();
+            session.setAttribute(email, code);
+            return "redirect:/checkCode";
+        } else {
+            // 이메일 발송 오류 처리
+            return "redirect:/login";
+        }
     }
 
     @GetMapping("/checkCode")
@@ -97,5 +108,17 @@ public class MemberController {
     @PostMapping("/checkCode")
     public String checkCode() {
         return "redirect:/login";
+    }
+
+    private String createVerificationCode() {
+        int leftLimit = 48;
+        int rightLimit = 122;
+        int length = 6;
+
+        return new Random().ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(length)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
     }
 }
