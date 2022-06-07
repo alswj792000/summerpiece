@@ -107,6 +107,10 @@ public class Member implements UserDetails {
     // 계정 사용 가능 여부 반환
     @Override
     public boolean isEnabled() {
+        if (status == MemberStatus.N) {
+            return false;
+        }
+
         return true; // 사용 가능
     }
 
@@ -118,5 +122,9 @@ public class Member implements UserDetails {
 
     public void updatePwd(String newPwd) {
         this.pwd = newPwd;
+    }
+
+    public void deleteMember() {
+        this.status = MemberStatus.N;
     }
 }

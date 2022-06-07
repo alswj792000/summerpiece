@@ -37,12 +37,27 @@
             <h2 class="form-login-heading">Reset Your Password</h2>
             <div class="login-wrap">
                 <div>
-                    Please enter the verification code.
+                    Enter your account's email address<br>
+                    and we will send you a verification code to your email.
                 </div>
                 <br>
-                <input type="text" class="form-control" name="code" placeholder="Verification code" autofocus><br>
-                <button class="btn btn-theme btn-block" type="submit">Verify code</button>
+                <input type="text" class="form-control" name="email" placeholder="Email" autofocus><br>
+                <button class="btn btn-theme btn-block" type="button" onclick="sendCode()">Send code</button><br>
+                <input type="text" class="form-control" name="code" placeholder="Verification code"><br>
+                <button class="btn btn-theme btn-block" type="button" onclick="verifyCode()">Verify code</button>
+
                 <hr>
+
+                <div>
+                    Reset your password.
+                </div>
+                <br>
+                <input type="text" class="form-control" name="email" placeholder="Password"><br>
+                <input type="text" class="form-control" name="email" placeholder="Confirm password"><br>
+                <button class="btn btn-theme btn-block" type="submit">Reset password</button>
+
+                <hr>
+
                 <div class="registration">
                     <label class="checkbox">
                     <span class="pull-right">
@@ -65,6 +80,56 @@
     $.backstretch("img/login-bg.jpg", {
       speed: 500
     });
+
+    var email;
+
+    function sendCode() {
+        email = document.getElementsByName("email")[0].value;
+
+        var param = {
+            "email": email
+        }
+
+        $.ajax({
+            url: "/sendCode",
+            type: "POST",
+            data: JSON.stringify(param),
+            contentType: "application/json; charset=utf-8",
+            success: function(data) {
+                console.log("success");
+                console.log(data);
+            },
+            error: function(data) {
+                console.log("error");
+                console.log(data);
+            }
+        });
+    }
+
+    function verifyCode() {
+        var code = document.getElementsByName("code")[0].value;
+        console.log("code: " + code);
+
+        var params = {
+            "email": email,
+            "code": code
+        }
+
+        $.ajax({
+            url: "/verifyCode",
+            type: "POST",
+            data: JSON.stringify(params),
+            contentType: "application/json; charset=utf-8",
+            success: function(data) {
+                console.log("success");
+                console.log(data);
+            },
+            error: function(data) {
+                console.log("error");
+                console.log(data);
+            }
+        });
+    }
   </script>
 </body>
 
