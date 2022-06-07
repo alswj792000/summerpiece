@@ -114,13 +114,23 @@
 
             if(data != null){
               $.each(data, function(index, element) { // data의 요소 순회
-                let calendarStart = moment(new Date(element.calendarStartDate)).format('YYYY-MM-DD');
-                let calendarEnd = moment(new Date(element.calendarEndDate)).format('YYYY-MM-DD');
+                let calendarStart;
+                let calendarEnd;
                 let isAllDay = element.allDay;
                 let calendarColor = element.calendarColor;
 
+                if(isAllDay){
+                  calendarStart = moment(new Date(element.calendarStartDate)).format('YYYY-MM-DD');
+                  calendarEnd = moment(new Date(element.calendarEndDate)).format('YYYY-MM-DD');
+                } else {
+                  calendarStart = moment(new Date(element.calendarStartDate)).format('YYYY-MM-DD HH:mm');
+                  calendarEnd = moment(new Date(element.calendarEndDate)).format('YYYY-MM-DD HH:mm');
+                }
+
                 if(isAllDay && element.calendarStartDate !== element.calendarEndDate){
                   calendarEnd = moment(new Date(element.calendarEndDate)).add(1, 'days').format('YYYY-MM-DD');
+                } else if (!isAllDay && element.calendarStartDate !== element.calendarEndDate){
+                  calendarEnd = moment(new Date(element.calendarEndDate)).add(1, 'days').format('YYYY-MM-DD HH:mm');
                 }
 
                 events.push({
