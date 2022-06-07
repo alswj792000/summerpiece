@@ -38,6 +38,8 @@ public class MemberService implements UserDetailsService {
                 .name(memberDto.getName())
                 .nickname(memberDto.getNickname())
                 .phone(memberDto.getPhone())
+                .status(memberDto.getStatus())
+                .enrollDate(memberDto.getEnrollDate())
                 .pwd(memberDto.getPwd()).build()).getId();
     }
 
