@@ -61,7 +61,7 @@
                     </div>
                     <div class="col-lg-8 col-lg-offset-2 detailed">
                       <h4 class="mb">Change Password</h4>
-                      <form role="form" class="form-horizontal" th:action="@{'/members/'+ ${#authentication.principal.id}} + '/updatePwd'" method="post">
+                      <form role="form" class="form-horizontal" th:action="@{'/members/'+ ${#authentication.principal.id} + '/updatePwd'}" method="post">
                         <div class="form-group">
                           <label class="col-lg-2 control-label">Old password</label>
                           <div class="col-lg-6">
@@ -89,7 +89,25 @@
                     </div>
                     <div class="col-lg-8 col-lg-offset-2 detailed">
                       <h4 class="mb">Delete Account</h4>
-                      <button class="btn btn-theme04" type="button">Delete your account</button>
+                      <button class="btn btn-theme04" type="button" onclick="confirmDelete()">Delete your account</button>
+                      <br><br>
+                      <div id="delete-confirmation" style="display: none;">
+                        This action cannot be undone. If you want to continue the process, please enter the password.
+                        <br><br>
+                        <form role="form" class="form-horizontal">
+                          <div class="form-group">
+                            <label class="col-lg-2 control-label">Password</label>
+                            <div class="col-lg-6">
+                              <input type="password" class="form-control" name="pwd" id="confirm-delete-pwd">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <div class="col-lg-offset-2 col-lg-10">
+                              <button class="btn btn-theme04" type="button" onclick="deleteAccount()">Delete</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -107,28 +125,39 @@
   <!-- MAP SCRIPT - ALL CONFIGURATION IS PLACED HERE - VIEW OUR DOCUMENTATION FOR FURTHER INFORMATION -->
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASm3CwaK9qtcZEWYa-iQwHaGi3gcosAJc&sensor=false"></script>
   <script>
-    $('.contact-map').click(function() {
-
-      //google map in tab click initialize
-      function initialize() {
-        var myLatlng = new google.maps.LatLng(40.6700, -73.9400);
-        var mapOptions = {
-          zoom: 11,
-          scrollwheel: false,
-          center: myLatlng,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        }
-        var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-        var marker = new google.maps.Marker({
-          position: myLatlng,
-          map: map,
-          title: 'Dashio Admin Theme!'
-        });
-      }
-      google.maps.event.addDomListener(window, 'click', initialize);
-    });
-
     // 비밀번호와 비밀번호 확인이 일치하는지 확인하는 메소드 필요
+
+    function confirmDelete() {
+      var deleteConfirmationArea = document.getElementById('delete-confirmation');
+      deleteConfirmationArea.style.display = 'block';
+    }
+
+    function deleteAccount() {
+      var pwd = document.getElementById('confirm-delete-pwd').value;
+      console.log('pwd: ' + pwd);
+      var memberId = [[${#authentication.principal.id}]];
+
+      var param = {
+        "pwd": pwd
+      }
+
+      $.ajax({
+        url: "/members/" + memberId + "/delete",
+        type: "post",
+        data: JSON.stringify(param),
+        contentType: "application/json; charset=utf-8",
+        success: function(data) {
+          if (data == 200) {
+            location.href = "/logout";
+          } else {
+            alert('비밀번호를 잘못 입력하셨습니다.');
+          }
+        },
+        error: function(data) {
+          alert('회원 탈퇴에 실패하였습니다.');
+        }
+      });
+    }
   </script>
 </body>
 

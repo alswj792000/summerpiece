@@ -48,13 +48,17 @@ public class Member implements UserDetails {
 
     /** by민정 : 스프링부트 */
     @Builder
-    public Member(String email, String pwd, String name, String nickname, String phone, String auth) {
+    public Member(String email, String pwd, String name, String nickname, String phone, String auth,
+                  LocalDateTime enrollDate, MemberStatus status) {
         this.email = email;
         this.pwd = pwd;
         this.name = name;
         this.nickname = nickname;
         this.phone = phone;
         this.auth = auth;
+        // status, enrollDate추가
+        this.status = MemberStatus.Y;
+        this.enrollDate = LocalDateTime.now(); // 시간,날짜 동시에 필요할 때 사용
     }
 
     /** ------ UserDetails에서 필수로 구현해야 하는 메소드 ------*/
@@ -103,6 +107,10 @@ public class Member implements UserDetails {
     // 계정 사용 가능 여부 반환
     @Override
     public boolean isEnabled() {
+        if (status == MemberStatus.N) {
+            return false;
+        }
+
         return true; // 사용 가능
     }
 
@@ -114,5 +122,9 @@ public class Member implements UserDetails {
 
     public void updatePwd(String newPwd) {
         this.pwd = newPwd;
+    }
+
+    public void deleteMember() {
+        this.status = MemberStatus.N;
     }
 }
