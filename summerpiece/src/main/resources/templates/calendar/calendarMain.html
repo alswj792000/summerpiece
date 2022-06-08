@@ -69,7 +69,8 @@
                   start: calendarStart,
                   end: calendarEnd,
                   allDay: isAllDay,
-                  color: "#A0A0A0FF"
+                  color: "#A0A0A0FF",
+                  id: data
                 });
               },
               error: function (request, status, error){
@@ -99,8 +100,18 @@
 
         // 드롭 일정 업데이트
         $.ajax({
-          url: '',
-          method: 'PUT'
+          url: '/calendar/drag/'+event.event.id,
+          method: 'PUT',
+          data: newDates,
+          dataType: 'text',
+          success: function(data){
+            console.log("success");
+          },
+          error: function (request, status, error){
+            console.log("code : " + request.status
+                    + "\nmessage : " + request.responseText
+                    + "\nerror : " + error);
+          }
         });
       },
 
@@ -123,14 +134,14 @@
                   calendarStart = moment(new Date(element.calendarStartDate)).format('YYYY-MM-DD');
                   calendarEnd = moment(new Date(element.calendarEndDate)).format('YYYY-MM-DD');
                 } else {
-                  calendarStart = moment(new Date(element.calendarStartDate)).format('YYYY-MM-DD HH:mm');
-                  calendarEnd = moment(new Date(element.calendarEndDate)).format('YYYY-MM-DD HH:mm');
+                  calendarStart = moment(new Date(element.calendarStartDate)).format('YYYY-MM-DD HH:mm:ss');
+                  calendarEnd = moment(new Date(element.calendarEndDate)).format('YYYY-MM-DD HH:mm:ss');
                 }
 
                 if(isAllDay && element.calendarStartDate !== element.calendarEndDate){
                   calendarEnd = moment(new Date(element.calendarEndDate)).add(1, 'days').format('YYYY-MM-DD');
                 } else if (!isAllDay && element.calendarStartDate !== element.calendarEndDate){
-                  calendarEnd = moment(new Date(element.calendarEndDate)).add(1, 'days').format('YYYY-MM-DD HH:mm');
+                  calendarEnd = moment(new Date(element.calendarEndDate)).add(1, 'days').format('YYYY-MM-DD HH:mm:ss');
                 }
 
                 events.push({
@@ -139,7 +150,8 @@
                   end: calendarEnd,
                   allDay: isAllDay,
                   url: "/calendar/schedule/"+element.id,
-                  color: calendarColor
+                  color: calendarColor,
+                  id: element.id
                 });
               });
             }
@@ -163,31 +175,34 @@
       startDate: '',
       endDate: ''
     }
-    // console.log(event._instance.allDay);
-    // console.log(event.instance.start);
-    console.log(event);
-    console.log(event.start);
-    // 날짜와 시간이 모두 같은 경우
-    if(!event.end){
-      event.end = event.start;
-    }
+
+    let e = event.event;
 
     // all day 하루
-    if(event.allDay && event.end === event.start){
-      newDates.startDate = moment(event.start).format('YYYY-MM-DD');
+    if(e.allDay && e.end === e.start){
+      newDates.startDate = moment(e.start).format('YYYY-MM-DD');
       newDates.endDate = newDates.startDate;
     }
 
     // all day 2일 이상
-    else if (event.allDay && event.end !== null) {
-      newDates.startDate = moment(event.start).format('YYYY-MM-DD');
-      newDates.endDate = moment(event.end).subtract(1, 'days').format('YYYY-MM-DD');
+    else if (e.allDay && e.end !== null) {
+      newDates.startDate = moment(e.start).format('YYYY-MM-DD');
+      newDates.endDate = moment(e.end).subtract(1, 'days').format('YYYY-MM-DD');
     }
 
     //all day가 아님
     else if (!event.allDay) {
-      newDates.startDate = moment(event.start).format('YYYY-MM-DD HH:mm');
-      newDates.endDate = moment(event.end).format('YYYY-MM-DD HH:mm');
+      newDates.startDate = moment(e.start).format('YYYY-MM-DD HH:mm:ss');
+      newDates.endDate = moment(e.end).format('YYYY-MM-DD HH:mm:ss');
+    }
+
+    // 날짜와 시간이 모두 같은 경우
+    if(!e.end && e.allDay){
+      newDates.startDate = moment(e.start).format('YYYY-MM-DD');
+      newDates.endDate = moment(e.start).format('YYYY-MM-DD');
+    } else if(!e.end && !e.allDay){
+      newDates.startDate = moment(e.start).format('YYYY-MM-DD HH:mm:ss');
+      newDates.endDate = moment(e.start).format('YYYY-MM-DD HH:mm:ss');
     }
 
     return newDates;

@@ -157,6 +157,22 @@ public class CalendarController {
         return "redirect:/calendar/schedule/" + id;
     }
 
+    @PutMapping("calendar/drag/{id}")
+    @ResponseBody
+    public String dragAndDrop(@PathVariable("id") Long id, @RequestParam String startDate, @RequestParam String endDate){
+        Calendar calendar = calendarService.findCalendar(id);
+
+        String pattern = makePattern(calendar.isAllDay());
+
+        LocalDateTime calendarStartDate = changeTimeFormat(startDate, pattern, calendar.isAllDay());
+        LocalDateTime calendarEndDate = changeTimeFormat(endDate, pattern, calendar.isAllDay());
+
+        calendar.dragAndDrop(calendarStartDate, calendarEndDate);
+        calendarService.saveCalendar(calendar);
+
+        return id.toString();
+    }
+
     @DeleteMapping("/calendar/schedule/{id}")
     public String deleteSchedule(@PathVariable("id") Long id){
         Calendar calendar = calendarService.findCalendar(id);

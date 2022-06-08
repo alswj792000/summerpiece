@@ -51,4 +51,9 @@ public class Calendar {
         this.calendarState = CalendarState.Y;
         this.calendarColor = calendarColor;
     }
+
+    public void dragAndDrop(LocalDateTime calendarStartDate, LocalDateTime calendarEndDate){
+        this.calendarStartDate = calendarStartDate;
+        this.calendarEndDate = calendarEndDate;
+    }
 }
