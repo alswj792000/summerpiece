@@ -53,7 +53,7 @@
                 </div>
                 <br>
                 <input type="password" class="form-control" name="newPwd" placeholder="Password"><br>
-                <input type="password" class="form-control" name="confirmedPwd" placeholder="Confirm password"><br>
+                <input type="password" class="form-control" name="confirmPwd" placeholder="Confirm password"><br>
                 <button class="btn btn-theme btn-block" type="button" onclick="resetPwd()">Reset password</button>
 
                 <hr>
@@ -102,12 +102,18 @@
             contentType: "application/json; charset=utf-8",
             success: function(data) {
                 if (data == '200') {
+                    alert('메일 발송에 성공하였습니다.');
                     isCodeSent = true;
+                } else if (data == '404') {
+                    alert('계정이 존재하지 않습니다.');
+                    isCodeSent = false;
                 } else {
+                    alert('메일 발송에 실패하였습니다.');
                     isCodeSent = false;
                 }
             },
             error: function(data) {
+                alert('메일 발송에 실패하였습니다.');
                 isCodeSent = false;
             }
         });
@@ -136,11 +142,9 @@
             success: function(data) {
                 if (data == '200') {
                     alert('코드가 일치합니다.');
-
                     isCodeSame = true;
                 } else {
-                    alert('시간이 경과되었거나, 코드가 일치하지 않습니다.');
-
+                    alert('코드가 일치하지 않습니다.');
                     isCodeSame = false;
                 }
             },
@@ -157,9 +161,9 @@
         }
 
         var newPwd = document.getElementsByName("newPwd")[0].value;
-        var confirmedPwd = document.getElementsByName("confirmedPwd")[0].value;
+        var confirmPwd = document.getElementsByName("confirmPwd")[0].value;
 
-        if (newPwd != confirmedPwd) {
+        if (newPwd != confirmPwd) {
             alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
             return;
         }
