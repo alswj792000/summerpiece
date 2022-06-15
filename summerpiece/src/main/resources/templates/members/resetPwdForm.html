@@ -53,7 +53,7 @@
                 </div>
                 <br>
                 <input type="password" class="form-control" name="newPwd" placeholder="Password"><br>
-                <input type="password" class="form-control" name="confirmedPwd" placeholder="Confirm password"><br>
+                <input type="password" class="form-control" name="confirmPwd" placeholder="Confirm password"><br>
                 <button class="btn btn-theme btn-block" type="button" onclick="resetPwd()">Reset password</button>
 
                 <hr>
@@ -167,9 +167,9 @@
         }
 
         var newPwd = document.getElementsByName("newPwd")[0].value;
-        var confirmedPwd = document.getElementsByName("confirmedPwd")[0].value;
+        var confirmPwd = document.getElementsByName("confirmPwd")[0].value;
 
-        if (newPwd != confirmedPwd) {
+        if (newPwd != confirmPwd) {
             alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
             return;
         }
