@@ -33,7 +33,7 @@
 
 <div id="login-page">
     <div class="container">
-        <form class="form-login" method="post">
+        <form class="form-login">
             <h2 class="form-login-heading">Reset Your Password</h2>
             <div class="login-wrap">
                 <div>
@@ -52,9 +52,9 @@
                     Reset your password.
                 </div>
                 <br>
-                <input type="text" class="form-control" name="email" placeholder="Password"><br>
-                <input type="text" class="form-control" name="email" placeholder="Confirm password"><br>
-                <button class="btn btn-theme btn-block" type="submit">Reset password</button>
+                <input type="password" class="form-control" name="newPwd" placeholder="Password"><br>
+                <input type="password" class="form-control" name="confirmedPwd" placeholder="Confirm password"><br>
+                <button class="btn btn-theme btn-block" type="button" onclick="resetPwd()">Reset password</button>
 
                 <hr>
 
@@ -81,9 +81,14 @@
       speed: 500
     });
 
+    var isCodeSent = false;
+    var isCodeSame = false;
     var email;
 
     function sendCode() {
+        isCodeSent = false;
+        isCodeSame = false;
+
         email = document.getElementsByName("email")[0].value;
 
         var param = {
@@ -96,19 +101,27 @@
             data: JSON.stringify(param),
             contentType: "application/json; charset=utf-8",
             success: function(data) {
-                console.log("success");
-                console.log(data);
+                if (data == '200') {
+                    isCodeSent = true;
+                } else {
+                    isCodeSent = false;
+                }
             },
             error: function(data) {
-                console.log("error");
-                console.log(data);
+                isCodeSent = false;
             }
         });
     }
 
     function verifyCode() {
+        if (!isCodeSent) {
+            alert('이메일로 코드를 먼저 전송해주세요.');
+            return;
+        }
+
+        isCodeSame = false;
+
         var code = document.getElementsByName("code")[0].value;
-        console.log("code: " + code);
 
         var params = {
             "email": email,
@@ -121,12 +134,51 @@
             data: JSON.stringify(params),
             contentType: "application/json; charset=utf-8",
             success: function(data) {
-                console.log("success");
-                console.log(data);
+                if (data == '200') {
+                    alert('코드가 일치합니다.');
+
+                    isCodeSame = true;
+                } else {
+                    alert('시간이 경과되었거나, 코드가 일치하지 않습니다.');
+
+                    isCodeSame = false;
+                }
             },
             error: function(data) {
-                console.log("error");
-                console.log(data);
+                isCodeSame = false;
+            }
+        });
+    }
+
+    function resetPwd() {
+        if (!(isCodeSent && isCodeSame)) {
+            alert('먼저 코드를 확인해주세요.');
+            return;
+        }
+
+        var newPwd = document.getElementsByName("newPwd")[0].value;
+        var confirmedPwd = document.getElementsByName("confirmedPwd")[0].value;
+
+        if (newPwd != confirmedPwd) {
+            alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+            return;
+        }
+
+        var params = {
+            "email": email,
+            "newPwd": newPwd
+        }
+
+        $.ajax({
+            url: "/resetPwd",
+            type: "POST",
+            data: JSON.stringify(params),
+            contentType: "application/json; charset=utf-8",
+            success: function(data) {
+                location.href = "/login";
+            },
+            error: function(data) {
+
             }
         });
     }
