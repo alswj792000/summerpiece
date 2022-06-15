@@ -102,15 +102,25 @@
             contentType: "application/json; charset=utf-8",
             success: function(data) {
                 if (data == '200') {
-                    isCodeSent = true;
+                    alertEmailSendResult(true);
                 } else {
-                    isCodeSent = false;
+                    alertEmailSendResult(false);
                 }
             },
             error: function(data) {
-                isCodeSent = false;
+                alertEmailSendResult(false);
             }
         });
+    }
+
+    function alertEmailSendResult(result) {
+        if (result) {
+            alert('메일 발송에 성공하였습니다.');
+        } else {
+            alert('메일 발송에 실패하였습니다.');
+        }
+
+        isCodeSent = result;
     }
 
     function verifyCode() {
