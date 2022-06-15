@@ -25,6 +25,9 @@ public class EmailUtils {
             helper.setTo(email);
             helper.setSubject(subject);
             helper.setText(body);
+
+            sender.send(message);
+
             return 200;
         } catch (MessagingException e) {
             e.printStackTrace();

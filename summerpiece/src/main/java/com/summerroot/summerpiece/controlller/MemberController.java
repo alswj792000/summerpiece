@@ -117,6 +117,17 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/resetPwd")
+    @ResponseBody
+    public int resetPwd(@RequestBody Map<String, Object> params) {
+        String email = (String) params.get("email");
+        String newPwd = (String) params.get("newPwd");
+
+        memberService.resetPwd(email, newPwd);
+
+        return 200;
+    }
+
     @PostMapping("/members/{memberId}/delete")
     @ResponseBody
     public int deleteMember(@PathVariable("memberId") Long memberId, @RequestBody Map<String, Object> param) {

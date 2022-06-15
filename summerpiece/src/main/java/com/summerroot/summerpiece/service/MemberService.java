@@ -2,7 +2,6 @@ package com.summerroot.summerpiece.service;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
 import com.summerroot.summerpiece.domain.Member;
-import com.summerroot.summerpiece.domain.MemberStatus;
 import com.summerroot.summerpiece.repository.MemberRepository;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import lombok.RequiredArgsConstructor;
@@ -75,5 +74,13 @@ public class MemberService implements UserDetailsService {
         } else {
             return 500;
         }
+    }
+
+    public void resetPwd(String email, String newPwd) {
+        Member member = memberSecuRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException((email)));
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        member.setPwd(encoder.encode(newPwd));
     }
 }
