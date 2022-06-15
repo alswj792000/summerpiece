@@ -10,6 +10,7 @@ import com.summerroot.summerpiece.util.EmailUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -86,16 +88,21 @@ public class MemberController {
     @PostMapping("/sendCode")
     @ResponseBody
     public int sendCode(HttpServletRequest request, @RequestBody Map<String, Object> param) {
-        String email = (String) param.get("email");
-        String subject = "이메일 인증 코드입니다.";
-        String code = createVerificationCode();
-        String body = "이메일 인증 코드는 \"" + code + "\" 입니다.";
+        String address = (String) param.get("email");
 
-        int resultCode = emailUtils.sendEmail(email, subject, body);
+        try {
+            memberSecuRepository.findByEmail(address).orElseThrow(() -> new UsernameNotFoundException((address)));
+        } catch (Exception e) {
+            return 404;
+        }
+
+        Map<String, String> email = createEmailSubjectAndBody(address);
+
+        int resultCode = emailUtils.sendEmail(email);
 
         if (resultCode == 200) {
             HttpSession session = request.getSession();
-            session.setAttribute(email, code);
+            session.setAttribute(address, email.get("code"));
             session.setMaxInactiveInterval(60);
         }
 
@@ -137,6 +144,23 @@ public class MemberController {
         String rawPwd = (String) param.get("pwd");
 
         return memberService.deleteMember(memberId, rawPwd);
+    }
+
+    private Map<String, String> createEmailSubjectAndBody(String address) {
+        Map<String, String> email = new HashMap<>();
+
+        email.put("address", address);
+
+        String subject = "이메일 인증 코드입니다.";
+        email.put("subject", subject);
+
+        String code = createVerificationCode();
+        email.put("code", code);
+
+        String body = "이메일 인증 코드는 \"" + code + "\" 입니다.";
+        email.put("body", body);
+
+        return email;
     }
 
     private String createVerificationCode() {

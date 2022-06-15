@@ -102,25 +102,21 @@
             contentType: "application/json; charset=utf-8",
             success: function(data) {
                 if (data == '200') {
-                    alertEmailSendResult(true);
+                    alert('메일 발송에 성공하였습니다.');
+                    isCodeSent = true;
+                } else if (data == '404') {
+                    alert('계정이 존재하지 않습니다.');
+                    isCodeSent = false;
                 } else {
-                    alertEmailSendResult(false);
+                    alert('메일 발송에 실패하였습니다.');
+                    isCodeSent = false;
                 }
             },
             error: function(data) {
-                alertEmailSendResult(false);
+                alert('메일 발송에 실패하였습니다.');
+                isCodeSent = false;
             }
         });
-    }
-
-    function alertEmailSendResult(result) {
-        if (result) {
-            alert('메일 발송에 성공하였습니다.');
-        } else {
-            alert('메일 발송에 실패하였습니다.');
-        }
-
-        isCodeSent = result;
     }
 
     function verifyCode() {
@@ -146,11 +142,9 @@
             success: function(data) {
                 if (data == '200') {
                     alert('코드가 일치합니다.');
-
                     isCodeSame = true;
                 } else {
-                    alert('시간이 경과되었거나, 코드가 일치하지 않습니다.');
-
+                    alert('코드가 일치하지 않습니다.');
                     isCodeSame = false;
                 }
             },
