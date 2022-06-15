@@ -1,8 +1,10 @@
 package com.summerroot.summerpiece.controlller;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
+import com.summerroot.summerpiece.DTO.ResponseDto;
 import com.summerroot.summerpiece.domain.Member;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
+import com.summerroot.summerpiece.service.MailService;
 import com.summerroot.summerpiece.service.MemberService;
 import com.summerroot.summerpiece.util.EmailUtils;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class MemberController {
     @Autowired
     MemberSecuRepository memberSecuRepository; // 시큐리티 레파지토리
     private final MemberService memberService;
+    private final MailService mailService;
 
     /** by민정 : 회원가입(등록) */
     @PostMapping("/member")
@@ -135,5 +138,43 @@ public class MemberController {
                 .limit(length)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
+    }
+
+        /** 회원가입 : 이메일 인증코드 발급 */
+    @ResponseBody // 값 변환을 위해 꼭 필요함
+    @PostMapping("/emailCode") // 아이디 중복확인을 위한 값으로 따로 매핑
+    public String signUpEmailCheck(@RequestParam("email") String email) {
+//        logger.info("전달받은 email:"+email);
+
+        Random random=new Random();  //난수 생성을 위한 랜덤 클래스
+        String key="";  // 인증번호
+        for(int i =0; i<3;i++) {
+            int index=random.nextInt(25)+65; //A~Z까지 랜덤 알파벳 생성
+            key+=(char)index;
+        }
+        int numIndex=random.nextInt(9999)+1000; //4자리 랜덤 정수를 생성
+        key+=numIndex;
+
+        String subject = "[Summerpiece] 인증번호 입력을 위한 메일 전송.";
+        String body = "이메일 인증 코드는 " + key + "입니다.";
+
+        Map<String, Object> result = mailService.signUpEmailSend(email, subject, body);
+
+        return key;
+    }
+
+    /** 회원가입 : 이메일 중복 확인 */
+    @GetMapping("/emailCheck") // 데이터를 주는 컨트롤러이다.
+    public @ResponseBody ResponseDto<String> emailCompareCheck(String email){
+//        logger.info("전달받은 email:"+email);
+        //1. SELECT * FROM member WHERE email = "ssar"; 유저 eintity 받음
+        Member member =  memberSecuRepository.mEmailCompareCheck(email);
+
+        //2. 있으면 json 응답 클래스 리턴
+        if(member == null){
+            return new ResponseDto<String>(1, "통신 성공", "중복안됨");
+        } else {
+            return new ResponseDto<String>(1, "통신 성공", "중복됨");
+        }
     }
 }
