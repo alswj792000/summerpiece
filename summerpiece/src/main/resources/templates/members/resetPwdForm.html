@@ -41,7 +41,8 @@
                     and we will send you a verification code to your email.
                 </div>
                 <br>
-                <input type="text" class="form-control" name="email" placeholder="Email" autofocus><br>
+                <input type="text" class="form-control" name="email" placeholder="Email" autofocus onkeyup="checkEmailFormat()"><br>
+                <p id="email-msg-area"></p>
                 <button class="btn btn-theme btn-block" type="button" onclick="sendCode()">Send code</button><br>
                 <input type="text" class="form-control" name="code" placeholder="Verification code"><br>
                 <button class="btn btn-theme btn-block" type="button" onclick="verifyCode()">Verify code</button>
@@ -52,7 +53,8 @@
                     Reset your password.
                 </div>
                 <br>
-                <input type="password" class="form-control" name="newPwd" placeholder="Password"><br>
+                <input type="password" class="form-control" name="pwd" placeholder="Password" onkeyup="checkPwdFormat()"><br>
+                <p id="pwd-msg-area"></p>
                 <input type="password" class="form-control" name="confirmPwd" placeholder="Confirm password"><br>
                 <button class="btn btn-theme btn-block" type="button" onclick="resetPwd()">Reset password</button>
 
@@ -81,17 +83,43 @@
       speed: 500
     });
 
+    const COLORS = {
+        WRONG: "#A6444C"
+    }
+
     var isCodeSent = false;
     var isCodeSame = false;
     var email;
 
+    function checkEmailFormat() {
+        let regExp = /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+        let email = document.getElementsByName("email")[0].value;
+
+        let emailMsgArea = document.getElementById("email-msg-area");
+
+        if (!regExp.test(email)) {
+            emailMsgArea.innerHTML = "이메일 형식이 아닙니다.";
+            emailMsgArea.style.color = COLORS.WRONG;
+
+            return false;
+        } else {
+            emailMsgArea.innerHTML = "";
+
+            return true;
+        }
+    }
+
     function sendCode() {
+        if (!checkEmailFormat()) {
+            return;
+        }
+
         isCodeSent = false;
         isCodeSame = false;
 
         email = document.getElementsByName("email")[0].value;
 
-        var param = {
+        let param = {
             "email": email
         }
 
@@ -127,9 +155,9 @@
 
         isCodeSame = false;
 
-        var code = document.getElementsByName("code")[0].value;
+        let code = document.getElementsByName("code")[0].value;
 
-        var params = {
+        let params = {
             "email": email,
             "code": code
         }
@@ -154,23 +182,45 @@
         });
     }
 
+    function checkPwdFormat() {
+        let regExp = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+        let pwd = document.getElementsByName("pwd")[0].value;
+
+        let pwdMsgArea = document.getElementById("pwd-msg-area");
+
+        if (!regExp.test(pwd)) {
+            pwdMsgArea.innerHTML = "√ 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요";
+            pwdMsgArea.style.color = COLORS.WRONG;
+
+            return false;
+        } else {
+            pwdMsgArea.innerHTML = "";
+
+            return true;
+        }
+    }
+
     function resetPwd() {
         if (!(isCodeSent && isCodeSame)) {
             alert('먼저 코드를 확인해주세요.');
             return;
         }
 
-        var newPwd = document.getElementsByName("newPwd")[0].value;
-        var confirmPwd = document.getElementsByName("confirmPwd")[0].value;
+        if (!checkPwdFormat()) {
+            return;
+        }
 
-        if (newPwd != confirmPwd) {
+        let pwd = document.getElementsByName("pwd")[0].value;
+        let confirmPwd = document.getElementsByName("confirmPwd")[0].value;
+
+        if (pwd != confirmPwd) {
             alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
             return;
         }
 
-        var params = {
+        let params = {
             "email": email,
-            "newPwd": newPwd
+            "pwd": pwd
         }
 
         $.ajax({

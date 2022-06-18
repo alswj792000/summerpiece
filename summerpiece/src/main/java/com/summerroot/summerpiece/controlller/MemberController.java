@@ -2,7 +2,9 @@ package com.summerroot.summerpiece.controlller;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
 import com.summerroot.summerpiece.DTO.ResponseDto;
+import com.summerroot.summerpiece.constants.StatusCode;
 import com.summerroot.summerpiece.domain.Member;
+import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import com.summerroot.summerpiece.service.MailService;
 import com.summerroot.summerpiece.service.MemberService;
@@ -72,12 +74,19 @@ public class MemberController {
     }
 
     @PostMapping("/members/{memberId}/updatePwd")
-    public String updateMemberPwd(@PathVariable("memberId") Long memberId, @RequestParam("oldPwd") String oldPwd, @RequestParam("newPwd") String newPwd) {
-        // 원래 비밀번호가 일치하는지 비교
+    public String updateMemberPwd(@PathVariable("memberId") Long memberId, @RequestParam("oldPwd") String oldPwd, @RequestParam("newPwd") String newPwd, Model model) {
+        if (!isPwdMatched(memberId, oldPwd)) {
+            try {
+                throw new ServiceException("비밀번호 변경에 실패하였습니다.");
+            } catch (ServiceException e) {
+                model.addAttribute("message", e.getMessage());
+                return "error/404";
+            }
+        }
 
         memberService.updatePwd(memberId, newPwd);
 
-        return "redirect:/members/{memberId}/update";
+        return "redirect:/logout";
     }
 
     @GetMapping("/resetPwd")
@@ -93,14 +102,14 @@ public class MemberController {
         try {
             memberSecuRepository.findByEmail(address).orElseThrow(() -> new UsernameNotFoundException((address)));
         } catch (Exception e) {
-            return 404;
+            return StatusCode.NOT_FOUND;
         }
 
         Map<String, String> email = createEmailSubjectAndBody(address);
 
         int resultCode = emailUtils.sendEmail(email);
 
-        if (resultCode == 200) {
+        if (resultCode == StatusCode.OK) {
             HttpSession session = request.getSession();
             session.setAttribute(address, email.get("code"));
             session.setMaxInactiveInterval(60);
@@ -117,13 +126,13 @@ public class MemberController {
         String savedCode = (String) request.getSession().getAttribute(email);
 
         if (savedCode == null) {
-            return 500;
+            return StatusCode.NOT_FOUND;
         }
 
         if (savedCode.equals(code)) {
-            return 200;
+            return StatusCode.OK;
         } else {
-            return 500;
+            return StatusCode.NOT_FOUND;
         }
     }
 
@@ -131,11 +140,11 @@ public class MemberController {
     @ResponseBody
     public int resetPwd(@RequestBody Map<String, Object> params) {
         String email = (String) params.get("email");
-        String newPwd = (String) params.get("newPwd");
+        String pwd = (String) params.get("pwd");
 
-        memberService.resetPwd(email, newPwd);
+        memberService.resetPwd(email, pwd);
 
-        return 200;
+        return StatusCode.OK;
     }
 
     @PostMapping("/members/{memberId}/delete")
@@ -161,18 +170,6 @@ public class MemberController {
         email.put("body", body);
 
         return email;
-    }
-
-    private String createVerificationCode() {
-        int leftLimit = 48;
-        int rightLimit = 122;
-        int length = 6;
-
-        return new Random().ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(length)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
     }
 
         /** 회원가입 : 이메일 인증코드 발급 */
@@ -211,5 +208,46 @@ public class MemberController {
         } else {
             return new ResponseDto<String>(1, "통신 성공", "중복됨");
         }
+    }
+
+    @GetMapping("/findEmail")
+    public String findEmailForm() {
+        return "members/findEmailForm";
+    }
+
+    @PostMapping("/findEmail")
+    @ResponseBody
+    public Map<String, String> findEmail(@RequestBody Map<String, Object> params) {
+        String name = (String) params.get("name");
+        String phone = (String) params.get("phone");
+
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String email = memberService.findEmail(name, phone);
+            response.put("code", Integer.toString(StatusCode.OK));
+            response.put("email", email);
+        } catch (ServiceException e) {
+            response.put("code", Integer.toString(StatusCode.NOT_FOUND));
+            response.put("message", e.getMessage());
+        }
+
+        return response;
+    }
+
+    private boolean isPwdMatched(Long memberId, String oldPwd) {
+        return memberService.checkPwd(memberId, oldPwd);
+    }
+
+    private String createVerificationCode() {
+        int leftLimit = 48;
+        int rightLimit = 122;
+        int length = 6;
+
+        return new Random().ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(length)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
     }
 }

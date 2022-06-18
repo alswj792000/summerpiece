@@ -1,7 +1,9 @@
 package com.summerroot.summerpiece.service;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
+import com.summerroot.summerpiece.constants.StatusCode;
 import com.summerroot.summerpiece.domain.Member;
+import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberRepository;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import lombok.RequiredArgsConstructor;
@@ -70,17 +72,36 @@ public class MemberService implements UserDetailsService {
         if (encoder.matches(rawPwd, encodedPwd)) {
             member.deleteMember();
 
-            return 200;
+            return StatusCode.OK;
         } else {
-            return 500;
+            return StatusCode.NOT_FOUND;
         }
     }
 
-    public void resetPwd(String email, String newPwd) {
+    public void resetPwd(String email, String pwd) {
         Member member = memberSecuRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException((email)));
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        member.setPwd(encoder.encode(newPwd));
+        member.setPwd(encoder.encode(pwd));
+    }
+
+    public String findEmail(String name, String phone) throws ServiceException {
+        Member member = memberRepository.findEmail(name, phone).orElseThrow(() -> new ServiceException("입력하신 정보에 해당하는 계정이 존재하지 않습니다."));
+
+        return member.getEmail();
+    }
+
+    public boolean checkPwd(Long memberId, String oldPwd) {
+        Member member = memberRepository.findOne(memberId);
+        String encodedPwd = member.getPwd();
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!encoder.matches(oldPwd, encodedPwd)) {
+            return false;
+        }
+
+        return true;
     }
 }
