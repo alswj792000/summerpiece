@@ -78,7 +78,7 @@
     const COLORS = {
         CORRECT: "#43733C",
         WRONG: "#A6444C"
-    };
+    }
 
     function findEmail() {
         let name = document.getElementsByName("name")[0].value;
@@ -119,6 +119,15 @@
         })
     }
 
+    function isFormFilled(name, phone) {
+        if (name == '' || phone == '') {
+            alert('이름과 전화번호를 입력하세요.');
+
+            return false;
+        }
+
+        return true;
+    }
 
     function checkPhoneFormat(phone) {
         let regExp = /^\d+$/;
@@ -129,15 +138,6 @@
         }
 
         return isMatched;
-    }
-
-    function isFormFilled(name, phone) {
-        if (name == '' || phone == '') {
-            alert('이름과 전화번호를 입력하세요.');
-            return false;
-        }
-
-        return true;
     }
   </script>
 </body>

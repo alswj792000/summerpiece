@@ -85,7 +85,7 @@ public class MemberController {
 
         memberService.updatePwd(memberId, newPwd);
 
-        return "redirect:/members/{memberId}/update";
+        return "redirect:/logout";
     }
 
     @GetMapping("/resetPwd")

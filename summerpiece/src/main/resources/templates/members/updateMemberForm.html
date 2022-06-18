@@ -65,9 +65,10 @@
                         <div class="form-group">
                           <label class="col-lg-2 control-label">New password</label>
                           <div class="col-lg-6">
-                            <input type="password" class="form-control" name="newPwd">
+                            <input type="password" class="form-control" name="newPwd" onkeyup="checkNewPwdFormat()">
                           </div>
                         </div>
+                        <div id="newPwdMsgArea"></div>
                         <div class="form-group">
                           <label class="col-lg-2 control-label">Confirm new password</label>
                           <div class="col-lg-6">
@@ -119,28 +120,84 @@
   <!-- MAP SCRIPT - ALL CONFIGURATION IS PLACED HERE - VIEW OUR DOCUMENTATION FOR FURTHER INFORMATION -->
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASm3CwaK9qtcZEWYa-iQwHaGi3gcosAJc&sensor=false"></script>
   <script>
+    const CODES = {
+      OK: '200'
+    }
+
+    const COLORS = {
+      CORRECT: "#43733C",
+      WRONG: "#A6444C"
+    }
+
     function isInfoFilled() {
       let name = document.getElementsByName("name")[0].value;
       let phone = document.getElementsByName("phone")[0].value;
 
       if (name == '' || phone == '') {
         alert('이름과 전화번호를 입력해주세요.');
+
+        return false;
+      }
+
+      return checkPhoneFormat(phone);
+    }
+
+    function checkPhoneFormat(phone) {
+      let regExp = /^\d+$/;
+      let isMatched = regExp.test(phone);
+
+      if (!isMatched) {
+        alert('전화번호에 숫자만 입력해주세요.');
+      }
+
+      return isMatched;
+    }
+
+    function checkPwd() {
+      let oldPwd = document.getElementsByName("oldPwd")[0].value;
+      let newPwd = document.getElementsByName("newPwd")[0].value;
+      let confirmPwd = document.getElementsByName("confirmPwd")[0].value;
+
+      if (!isPwdFilled(oldPwd, newPwd)) {
+        return false;
+      }
+
+      if (!checkNewPwdFormat()) {
+        return false;
+      }
+
+      if (!isPwdMatched(newPwd, confirmPwd)) {
+        alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+
         return false;
       }
 
       return true;
     }
 
-    function checkPwd() {
+    function checkNewPwdFormat() {
+      let regExp = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
       let newPwd = document.getElementsByName("newPwd")[0].value;
-      let confirmPwd = document.getElementsByName("confirmPwd")[0].value;
 
-      if (newPwd != confirmPwd) {
-        alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+      let newPwdMsgArea = document.getElementById("newPwdMsgArea");
+      if (!regExp.test(newPwd)) {
+        newPwdMsgArea.innerHTML = "√ 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요";
+        newPwdMsgArea.style.color = COLORS.WRONG;
+
         return false;
-      }
+      } else {
+        newPwdMsgArea.innerHTML = "";
 
-      return true;
+        return true;
+      }
+    }
+
+    function isPwdFilled(oldPwd, newPwd) {
+      return oldPwd != '' && newPwd != '';
+    }
+
+    function isPwdMatched(newPwd, confirmPwd) {
+      return newPwd == confirmPwd;
     }
 
     function confirmDelete() {
@@ -150,7 +207,6 @@
 
     function deleteAccount() {
       let pwd = document.getElementById('confirm-delete-pwd').value;
-      console.log('pwd: ' + pwd);
       let memberId = [[${#authentication.principal.id}]];
 
       let param = {
@@ -163,14 +219,14 @@
         data: JSON.stringify(param),
         contentType: "application/json; charset=utf-8",
         success: function(data) {
-          if (data == 200) {
+          if (data == CODES.OK) {
             location.href = "/logout";
           } else {
-            alert('비밀번호를 잘못 입력하셨습니다.');
+            alert('회원 탈퇴에 실패하였습니다.');
           }
         },
         error: function(data) {
-          alert('회원 탈퇴에 실패하였습니다.');
+
         }
       });
     }
