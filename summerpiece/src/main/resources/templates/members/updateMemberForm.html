@@ -68,7 +68,7 @@
                             <input type="password" class="form-control" name="newPwd" onkeyup="checkNewPwdFormat()">
                           </div>
                         </div>
-                        <div id="newPwdMsgArea"></div>
+                        <p id="new-pwd-msg-area"></p>
                         <div class="form-group">
                           <label class="col-lg-2 control-label">Confirm new password</label>
                           <div class="col-lg-6">
@@ -125,7 +125,6 @@
     }
 
     const COLORS = {
-      CORRECT: "#43733C",
       WRONG: "#A6444C"
     }
 
@@ -179,7 +178,8 @@
       let regExp = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
       let newPwd = document.getElementsByName("newPwd")[0].value;
 
-      let newPwdMsgArea = document.getElementById("newPwdMsgArea");
+      let newPwdMsgArea = document.getElementById("new-pwd-msg-area");
+
       if (!regExp.test(newPwd)) {
         newPwdMsgArea.innerHTML = "√ 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요";
         newPwdMsgArea.style.color = COLORS.WRONG;

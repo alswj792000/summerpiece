@@ -77,12 +77,12 @@ public class MemberService implements UserDetailsService {
         }
     }
 
-    public void resetPwd(String email, String newPwd) {
+    public void resetPwd(String email, String pwd) {
         Member member = memberSecuRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException((email)));
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        member.setPwd(encoder.encode(newPwd));
+        member.setPwd(encoder.encode(pwd));
     }
 
     public String findEmail(String name, String phone) throws ServiceException {

@@ -139,9 +139,9 @@ public class MemberController {
     @ResponseBody
     public int resetPwd(@RequestBody Map<String, Object> params) {
         String email = (String) params.get("email");
-        String newPwd = (String) params.get("newPwd");
+        String pwd = (String) params.get("pwd");
 
-        memberService.resetPwd(email, newPwd);
+        memberService.resetPwd(email, pwd);
 
         return 200;
     }
