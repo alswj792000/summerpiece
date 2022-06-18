@@ -90,4 +90,17 @@ public class MemberService implements UserDetailsService {
 
         return member.getEmail();
     }
+
+    public boolean checkPwd(Long memberId, String oldPwd) {
+        Member member = memberRepository.findOne(memberId);
+        String encodedPwd = member.getPwd();
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!encoder.matches(oldPwd, encodedPwd)) {
+            return false;
+        }
+
+        return true;
+    }
 }

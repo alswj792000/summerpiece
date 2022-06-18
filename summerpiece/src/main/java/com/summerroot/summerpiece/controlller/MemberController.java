@@ -73,8 +73,15 @@ public class MemberController {
     }
 
     @PostMapping("/members/{memberId}/updatePwd")
-    public String updateMemberPwd(@PathVariable("memberId") Long memberId, @RequestParam("oldPwd") String oldPwd, @RequestParam("newPwd") String newPwd) {
-        // 원래 비밀번호가 일치하는지 비교
+    public String updateMemberPwd(@PathVariable("memberId") Long memberId, @RequestParam("oldPwd") String oldPwd, @RequestParam("newPwd") String newPwd, Model model) {
+        if (!isPwdMatched(memberId, oldPwd)) {
+            try {
+                throw new ServiceException("비밀번호 변경에 실패하였습니다.");
+            } catch (ServiceException e) {
+                model.addAttribute("message", e.getMessage());
+                return "error/404";
+            }
+        }
 
         memberService.updatePwd(memberId, newPwd);
 
@@ -164,18 +171,6 @@ public class MemberController {
         return email;
     }
 
-    private String createVerificationCode() {
-        int leftLimit = 48;
-        int rightLimit = 122;
-        int length = 6;
-
-        return new Random().ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(length)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
-    }
-
         /** 회원가입 : 이메일 인증코드 발급 */
     @ResponseBody // 값 변환을 위해 꼭 필요함
     @PostMapping("/emailCode") // 아이디 중복확인을 위한 값으로 따로 매핑
@@ -237,5 +232,21 @@ public class MemberController {
         }
 
         return response;
+    }
+
+    private boolean isPwdMatched(Long memberId, String oldPwd) {
+        return memberService.checkPwd(memberId, oldPwd);
+    }
+
+    private String createVerificationCode() {
+        int leftLimit = 48;
+        int rightLimit = 122;
+        int length = 6;
+
+        return new Random().ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(length)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
     }
 }
