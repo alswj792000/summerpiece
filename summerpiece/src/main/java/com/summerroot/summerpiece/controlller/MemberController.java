@@ -2,6 +2,7 @@ package com.summerroot.summerpiece.controlller;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
 import com.summerroot.summerpiece.DTO.ResponseDto;
+import com.summerroot.summerpiece.constants.StatusCode;
 import com.summerroot.summerpiece.domain.Member;
 import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
@@ -101,14 +102,14 @@ public class MemberController {
         try {
             memberSecuRepository.findByEmail(address).orElseThrow(() -> new UsernameNotFoundException((address)));
         } catch (Exception e) {
-            return 404;
+            return StatusCode.NOT_FOUND;
         }
 
         Map<String, String> email = createEmailSubjectAndBody(address);
 
         int resultCode = emailUtils.sendEmail(email);
 
-        if (resultCode == 200) {
+        if (resultCode == StatusCode.OK) {
             HttpSession session = request.getSession();
             session.setAttribute(address, email.get("code"));
             session.setMaxInactiveInterval(60);
@@ -125,13 +126,13 @@ public class MemberController {
         String savedCode = (String) request.getSession().getAttribute(email);
 
         if (savedCode == null) {
-            return 500;
+            return StatusCode.NOT_FOUND;
         }
 
         if (savedCode.equals(code)) {
-            return 200;
+            return StatusCode.OK;
         } else {
-            return 500;
+            return StatusCode.NOT_FOUND;
         }
     }
 
@@ -143,7 +144,7 @@ public class MemberController {
 
         memberService.resetPwd(email, pwd);
 
-        return 200;
+        return StatusCode.OK;
     }
 
     @PostMapping("/members/{memberId}/delete")
@@ -224,10 +225,10 @@ public class MemberController {
 
         try {
             String email = memberService.findEmail(name, phone);
-            response.put("code", "200");
+            response.put("code", Integer.toString(StatusCode.OK));
             response.put("email", email);
         } catch (ServiceException e) {
-            response.put("code", "404");
+            response.put("code", Integer.toString(StatusCode.NOT_FOUND));
             response.put("message", e.getMessage());
         }
 

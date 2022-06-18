@@ -1,6 +1,7 @@
 package com.summerroot.summerpiece.service;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
+import com.summerroot.summerpiece.constants.StatusCode;
 import com.summerroot.summerpiece.domain.Member;
 import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberRepository;
@@ -71,9 +72,9 @@ public class MemberService implements UserDetailsService {
         if (encoder.matches(rawPwd, encodedPwd)) {
             member.deleteMember();
 
-            return 200;
+            return StatusCode.OK;
         } else {
-            return 500;
+            return StatusCode.NOT_FOUND;
         }
     }
 
