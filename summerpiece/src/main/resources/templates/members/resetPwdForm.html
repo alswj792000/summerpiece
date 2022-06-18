@@ -91,7 +91,7 @@
 
         email = document.getElementsByName("email")[0].value;
 
-        var param = {
+        let param = {
             "email": email
         }
 
@@ -127,9 +127,9 @@
 
         isCodeSame = false;
 
-        var code = document.getElementsByName("code")[0].value;
+        let code = document.getElementsByName("code")[0].value;
 
-        var params = {
+        let params = {
             "email": email,
             "code": code
         }
@@ -160,15 +160,15 @@
             return;
         }
 
-        var newPwd = document.getElementsByName("newPwd")[0].value;
-        var confirmPwd = document.getElementsByName("confirmPwd")[0].value;
+        let newPwd = document.getElementsByName("newPwd")[0].value;
+        let confirmPwd = document.getElementsByName("confirmPwd")[0].value;
 
         if (newPwd != confirmPwd) {
             alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
             return;
         }
 
-        var params = {
+        let params = {
             "email": email,
             "newPwd": newPwd
         }
