@@ -2,6 +2,7 @@ package com.summerroot.summerpiece.service;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
 import com.summerroot.summerpiece.domain.Member;
+import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberRepository;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import lombok.RequiredArgsConstructor;
@@ -82,5 +83,11 @@ public class MemberService implements UserDetailsService {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         member.setPwd(encoder.encode(newPwd));
+    }
+
+    public String findEmail(String name, String phone) throws ServiceException {
+        Member member = memberRepository.findEmail(name, phone).orElseThrow(() -> new ServiceException("입력하신 정보에 해당하는 계정이 존재하지 않습니다."));
+
+        return member.getEmail();
     }
 }

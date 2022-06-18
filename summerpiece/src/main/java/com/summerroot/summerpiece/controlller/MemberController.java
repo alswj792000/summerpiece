@@ -3,6 +3,7 @@ package com.summerroot.summerpiece.controlller;
 import com.summerroot.summerpiece.DTO.MemberDto;
 import com.summerroot.summerpiece.DTO.ResponseDto;
 import com.summerroot.summerpiece.domain.Member;
+import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import com.summerroot.summerpiece.service.MailService;
 import com.summerroot.summerpiece.service.MemberService;
@@ -211,5 +212,30 @@ public class MemberController {
         } else {
             return new ResponseDto<String>(1, "통신 성공", "중복됨");
         }
+    }
+
+    @GetMapping("/findEmail")
+    public String findEmailForm() {
+        return "members/findEmailForm";
+    }
+
+    @PostMapping("/findEmail")
+    @ResponseBody
+    public Map<String, String> findEmail(@RequestBody Map<String, Object> params) {
+        String name = (String) params.get("name");
+        String phone = (String) params.get("phone");
+
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String email = memberService.findEmail(name, phone);
+            response.put("code", "200");
+            response.put("email", email);
+        } catch (ServiceException e) {
+            response.put("code", "404");
+            response.put("message", e.getMessage());
+        }
+
+        return response;
     }
 }
