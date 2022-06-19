@@ -6,11 +6,13 @@ import com.summerroot.summerpiece.constants.StatusCode;
 import com.summerroot.summerpiece.domain.Member;
 import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
+import com.summerroot.summerpiece.service.CalendarService;
 import com.summerroot.summerpiece.service.MailService;
 import com.summerroot.summerpiece.service.MemberService;
 import com.summerroot.summerpiece.util.EmailUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -35,6 +37,7 @@ public class MemberController {
     MemberSecuRepository memberSecuRepository; // 시큐리티 레파지토리
     private final MemberService memberService;
     private final MailService mailService;
+    private final CalendarService calendarService;
 
     /** by민정 : 회원가입(등록) */
     @PostMapping("/member")
@@ -249,5 +252,14 @@ public class MemberController {
                 .limit(length)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
+    }
+
+    @GetMapping("/")
+    public String goMain(HttpSession session, @AuthenticationPrincipal Member member){
+        // 완료되지 않은 일정 세션에 세팅
+        Long calendarCount = calendarService.findCalendarCount(member.getId());
+        session.setAttribute("calendarCount", calendarCount);
+        
+        return "main";
     }
 }

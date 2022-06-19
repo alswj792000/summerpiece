@@ -27,4 +27,8 @@ public class CalendarService {
     public Calendar findCalendar(Long id) {
         return calendarRepository.findOne(id);
     }
+
+    public Long findCalendarCount(Long id) {
+        return calendarRepository.findCalendarCount(id);
+    }
 }
