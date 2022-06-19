@@ -84,9 +84,9 @@ public class FileBoxController {
 
         return "fileBox/fileBox";
     }
-    @ResponseBody
+
     @GetMapping("/attach/{id}")
-    public ResponseEntity<Resource> downloadAttach(@PathVariable Long id, @RequestBody List<String> fileIdArr, HttpServletResponse response) throws IOException {
+    public ResponseEntity<Resource> downloadAttach(@PathVariable Long id, HttpServletResponse response) throws IOException {
         FileBox file = fileBoxRepository.findById(id).orElse(null);
 
         UrlResource resource = new UrlResource("file:" + file.getFilePath());
