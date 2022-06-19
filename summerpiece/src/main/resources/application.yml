@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:tcp://localhost/~/summerpiece;
+    url: jdbc:h2:tcp://localhost/~/summerpiece
     username: summerpiece
     password: summerpiece
     driver-class-name: org.h2.Driver
@@ -38,3 +38,14 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
 
+
+server:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10000MB
+      max-request-size: 10000MB
+      upload-files: file.dir=D:/
+
+file:
+  dir: D:\Temp\

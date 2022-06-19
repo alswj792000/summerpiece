@@ -1,6 +1,9 @@
 package com.summerroot.summerpiece.domain;
 
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -9,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class FileBox {
 
     @Id
@@ -32,8 +36,8 @@ public class FileBox {
     private Long fileSize;
 
     // @CreationTimestamp
-    @CreatedDate
-    private LocalDateTime fileUpdateDate;
+
+    private String fileUpdateDate;
 
     @LastModifiedDate
     private LocalDateTime modifiedDate;
@@ -46,5 +50,26 @@ public class FileBox {
 
     @Enumerated(EnumType.STRING)
     private FileBoxStatus status;
+
+    @Builder
+    public FileBox(Long id, String fileOriginName, String filePath, String fileSavedName,
+                   Long fileSize, String fileUpdateDate, LocalDateTime modifiedDate, String fileType,
+                   Member fileUploadMember, FileBoxStatus status, Board board){
+        this.id = id;
+        this.fileOriginName = fileOriginName;
+        this.filePath = filePath;
+        this.fileSavedName = fileSavedName;
+        this.fileSize = fileSize;
+        this.fileUpdateDate = fileUpdateDate;
+        this.modifiedDate = modifiedDate;
+        this.fileType = fileType;
+        this.fileUploadMember = fileUploadMember;
+        this.status = status;
+        this.board = board;
+    }
+
+    public void deleteFile(){
+        this.status = FileBoxStatus.valueOf(FileBoxStatus.N.name());
+    }
 
 }

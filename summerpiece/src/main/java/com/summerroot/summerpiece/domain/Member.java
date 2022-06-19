@@ -127,4 +127,12 @@ public class Member implements UserDetails {
     public void deleteMember() {
         this.status = MemberStatus.N;
     }
+
+    /**
+     * 유선 파일박스 작성자 표기를 위한 toString 추가
+     **/
+    @Override
+    public String toString() {
+        return id.toString();
+    }
 }

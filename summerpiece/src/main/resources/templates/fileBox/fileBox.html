@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header.html :: header" />
+<!--<style>-->
+<!--  .box-file-input label{-->
+<!--    display:inline-block;-->
+<!--    background:#23a3a7;-->
+<!--    color:#fff;-->
+<!--    padding:0px 15px;-->
+<!--    line-height:35px;-->
+<!--    cursor:pointer;-->
+<!--  }-->
+<!--  .box-file-input label:after{-->
+<!--     content:"파일등록";-->
+<!--  }-->
+
+<!--  .box-file-input .file-input{-->
+<!--    display:none;-->
+<!--  }-->
+
+<!--  .box-file-input .fileName{-->
+<!--    display:inline-block;-->
+<!--    padding-left:10px;-->
+<!--  }-->
+
+
+<!--</style>-->
+
+<body>
+<section id="container">
+  <header th:replace="fragments/bodyHeader.html :: bodyHeader" />
+  <aside th:replace="fragments/bodySidebar.html :: bodySidebar(currentMenu='fileBox')" />
+
+  <!--main content start-->
+  <section id="main-content">
+    <section class="wrapper site-min-height">
+      <h3><i class="fa fa-angle-right"></i> File Box</h3>
+      <div class="row mt">
+        <div class="col-lg-12">
+          <div class="row fileupload-buttonbar">
+            <div class="col-lg-8" style="height:57px;">
+              <div class="box-file-input">
+                <form enctype="multipart/form-data"  method="post"
+                      id="fileForm" style="display:inline;">
+                    <input multiple type="file"  class="fileName" name="files" style="display:inline;">
+                  <button class="btn btn-default" style="display:inline;">등록</button>
+                </form>
+              </div>
+            </div>
+            <div class="col-lg-4" style="text-align: right; padding-right:50px;">
+                  <span class="input-group">
+                    <input type="text" id="searchVal" onkeyup="enterKey()" class="form-control" placeholder="파일명을 입력하세요." th:value="${keyword}">
+                    <div class="input-group-btn">
+                      <button class="btn btn-default" type="button" onclick="search()">
+                          <i class="glyphicon glyphicon-search"></i>
+                      </button>
+                    </div>
+                  </span>
+              <div class="progress-extended">
+                &nbsp;
+              </div>
+            </div>
+          </div>
+          <table role="presentation" class="table table-striped">
+            <tbody class="files">
+            <tr>
+              <th style="width:50px; height: 40px;" >
+                <label class="checkbox-inline">
+                  <input type="checkbox" id="allCheckBox" class="chk" onclick="allChecked(this)">
+                </label>
+              </th>
+              <th>번호</th>
+              <th>작성자</th>
+              <th>파일명</th>
+<!--              <th>파일크기</th>-->
+              <th>등록일</th>
+              <th>다운로드</th>
+              <th>삭제</th>
+            </tr>
+            <tr th:if="${totalPage == 0}">
+              <td colspan="8" style="text-align:center; height: 100px;"> 등록된 파일이 없습니다. </td>
+            </tr>
+            <tr th:each="file : ${fileList}">
+              <td style="width:50px">
+                <input type="checkbox" class="chk" name="cchk" onclick="chkClicked()" th:value="${file.id}">
+              </td>
+              <td style="width:50px" th:text="${file.id}" name="fileId" id="fileId"></td>
+              <td style="width:100px" th:text="${file.fileUploadMember}" th:value="${file.fileUploadMember}" name="fileUploadMember"></td>
+              <td style="width:800px" th:text="${file.fileOriginName}"></td>
+<!--              <td style="width:100px" th:text="${file.fileSize}"></td>-->
+              <td style="width:100px" th:text="${file.fileUpdateDate}"></td>
+              <td style="width:100px"><a type="submit" class="btn btn-theme start" th:href="|/attach/${file.id}|" >
+                <i class="glyphicon glyphicon-download"></i>
+              </a></td>
+              <td style="width:100px">
+                <button th:if="${#authentication.principal.id}" th:value="${file.fileUploadMember}" class="btn btn-theme04 delete" name="fileIdArr" id="fileIdArr" onclick="deleteFile()">
+                  <i class="glyphicon glyphicon-trash" ></i>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <br>
+          <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
+            <div>
+              <div th:if="${totalPage != 0 }" class="text-center">
+                <ul class="pagination">
+                  <li th:each="page : ${#numbers.sequence(0, totalPage -1)}">
+                    <a th:classappend="${pageStat.index == pageNum} ? on" th:href="@{/fileBox/main/(page=${pageStat.index})}" th:text="${pageStat.index + 1}"></a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+  <!-- /MAIN CONTENT -->
+  <!--main content end-->
+  <footer th:replace="fragments/footer.html :: footer" />
+</section>
+<script>
+
+    function allChecked(target){
+        if($(target).is(":checked")){
+            $(".chk").prop("checked", true);
+        }else{
+            $(".chk").prop("checked", false);
+        }
+    }
+
+    function chkClicked(){
+        let allCount = $("input:checkbox[name=cchk]").length;
+
+        let checkedCount = $("input:checkbox[name=cchk]:checked");
+
+        if(allCount == checkedCount){
+            $(".chk").prop("checked", true);
+        } else{
+            $("#allCheckBox").prop("checked", false);
+        }
+    }
+
+
+    function search(){
+        let page = $("#pageNum").val();
+        let keyword = $.trim($("#searchVal").val());
+        location.href="/fileBox/main/?keyword="+keyword;
+    }
+
+    function enterKey(){
+        if(window.event.keyCode = 13){
+            search()
+        }
+    }
+
+
+    function deleteFile(){
+
+      let fileIdArr = [];
+      let fileUploadMember = $("button[name=fileIdArr]").val();
+
+      console.log("fileIdArr : " + fileIdArr + "\n" + "fileUploadMember:" + fileUploadMember);
+
+      $("input:checkbox[name=cchk]:checked").each(function(){
+        fileIdArr.push($(this).val());
+      });
+
+      let allData = {"fileIdArr":fileIdArr, "fileUploadMember":fileUploadMember}
+      console.log(fileIdArr);
+
+
+      let confirmAlert = confirm('정말로 삭제하시겠습니까? ');
+      if(confirmAlert){
+        $.ajax({
+          type : 'POST' ,
+          url: "/deleteFile" ,
+          dataType : 'json' ,
+          data: JSON.stringify(allData) ,
+          contentType : "application/json" ,
+          success : function(result){
+            alert("파일이 삭제되었습니다");
+            location.href="/fileBox/main";
+          },
+          error : function(request, status, error){
+            alert("삭제 실패 : 작성자만 삭제할 수 있습니다.");
+                location.href="/fileBox/main";
+          }
+        })
+      }
+    }
+</script>
+
+<script src="/lib/jquery-ui-1.9.2.custom.min.js"></script>
+
+</body>
+</html>
