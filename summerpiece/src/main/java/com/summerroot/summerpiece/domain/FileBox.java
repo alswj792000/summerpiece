@@ -1,5 +1,6 @@
 package com.summerroot.summerpiece.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class FileBox {
 
     @ManyToOne(targetEntity = Board.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
+    @JsonManagedReference
     private Board board;
 
     @Column(nullable = false)
@@ -46,6 +48,7 @@ public class FileBox {
 
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonManagedReference
     private Member fileUploadMember;
 
     @Enumerated(EnumType.STRING)

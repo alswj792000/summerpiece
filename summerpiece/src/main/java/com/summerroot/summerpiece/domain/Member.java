@@ -1,6 +1,7 @@
 package com.summerroot.summerpiece.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,6 +35,7 @@ public class Member implements UserDetails {
     private MemberStatus status;
 
     @OneToMany(mappedBy = "fileUploadMember", cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<FileBox> fileBoxes = new ArrayList<>();
 
     @OneToMany(mappedBy = "boardWriter", cascade = CascadeType.ALL)
