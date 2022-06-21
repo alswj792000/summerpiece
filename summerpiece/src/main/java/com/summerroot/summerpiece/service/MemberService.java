@@ -1,40 +1,28 @@
 package com.summerroot.summerpiece.service;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
-import com.summerroot.summerpiece.constants.StatusCode;
 import com.summerroot.summerpiece.domain.Member;
 import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberRepository;
 import com.summerroot.summerpiece.repository.MemberSecuRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpSession;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class MemberService implements UserDetailsService {
+public class MemberService {
 
     private final MemberSecuRepository memberSecuRepository;
     private final MemberRepository memberRepository;
-
-    /** by민정 : 로그인 */
-    @Override
-    public Member loadUserByUsername(String email) throws UsernameNotFoundException { // 필수 메소드인 loadUserByUsername()를 구현
-        // 기본 반환 타입인 UserDetails를 Member로 변경, Member은 UserDetails을 상속받았기 때문에 자동으로 다운 캐스팅
-        return memberSecuRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException((email)));
-    }
+    private final BCryptPasswordEncoder passwordEncoder;
 
     /** by민정 : 회원정보 저장 */
     public Long save(MemberDto memberDto) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        memberDto.setPwd(encoder.encode(memberDto.getPwd()));
+        memberDto.setPwd(passwordEncoder.encode(memberDto.getPwd()));
 
         return memberSecuRepository.save(Member.builder()
                 .email(memberDto.getEmail())
@@ -60,50 +48,29 @@ public class MemberService implements UserDetailsService {
     public void updatePwd(Long memberId, String newPwd) {
         Member member = memberRepository.findOne(memberId);
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-        member.updatePwd(encoder.encode(newPwd));
+        member.updatePwd(passwordEncoder.encode(newPwd));
     }
 
-    public int deleteMember(Long memberId, String rawPwd) {
+    public void deleteMember(Long memberId, String rawPwd) throws ServiceException {
         Member member = memberRepository.findOne(memberId);
         String encodedPwd = member.getPwd();
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-        if (encoder.matches(rawPwd, encodedPwd)) {
+        if (passwordEncoder.matches(rawPwd, encodedPwd)) {
             member.deleteMember();
-
-            return StatusCode.OK;
         } else {
-            return StatusCode.NOT_FOUND;
+            throw new ServiceException("회원 탈퇴에 실패했습니다.");
         }
     }
 
     public void resetPwd(String email, String pwd) {
         Member member = memberSecuRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException((email)));
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-        member.setPwd(encoder.encode(pwd));
+        member.setPwd(passwordEncoder.encode(pwd));
     }
 
     public String findEmail(String name, String phone) throws ServiceException {
         Member member = memberRepository.findEmail(name, phone).orElseThrow(() -> new ServiceException("입력하신 정보에 해당하는 계정이 존재하지 않습니다."));
 
         return member.getEmail();
-    }
-
-    public boolean checkPwd(Long memberId, String oldPwd) {
-        Member member = memberRepository.findOne(memberId);
-        String encodedPwd = member.getPwd();
-
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-        if (!encoder.matches(oldPwd, encodedPwd)) {
-            return false;
-        }
-
-        return true;
     }
 }

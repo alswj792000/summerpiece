@@ -1,7 +1,8 @@
 package com.summerroot.summerpiece.config;
 
-import com.summerroot.summerpiece.service.MemberService;
+import com.summerroot.summerpiece.service.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,7 +17,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final MemberService memberService; // 유저정보를 가져올 클래스
+    private final UserDetailServiceImpl userDetailService; // 유저정보를 가져올 클래스
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Override
     public void configure(WebSecurity web) { // 인증을 무시할 경로들을 설정
@@ -52,8 +58,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     /** by.민정 : 비밀번호 암호화 */
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception { // 로그인할 때 필요한 정보
-        auth.userDetailsService(memberService) // 유저 정보를 가져오는 서비스를 memberService으로 지정
-                .passwordEncoder(new BCryptPasswordEncoder());
+        auth.userDetailsService(userDetailService) // 유저 정보를 가져오는 서비스를 memberService으로 지정
+                .passwordEncoder(passwordEncoder());
                 // 패스워드 인코더는 빈으로 등록해놓은 passwordEncoder()를 사용 (BCrypt)
     }
 }
