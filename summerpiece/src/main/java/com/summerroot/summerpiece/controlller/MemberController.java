@@ -12,6 +12,8 @@ import com.summerroot.summerpiece.service.MemberService;
 import com.summerroot.summerpiece.util.EmailUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -100,26 +102,28 @@ public class MemberController {
 
     @PostMapping("/sendCode")
     @ResponseBody
-    public int sendCode(HttpServletRequest request, @RequestBody Map<String, Object> param) {
+    public ResponseEntity<Object> sendCode(HttpServletRequest request, @RequestBody Map<String, Object> param) {
         String address = (String) param.get("email");
 
         try {
             memberSecuRepository.findByEmail(address).orElseThrow(() -> new UsernameNotFoundException((address)));
         } catch (Exception e) {
-            return StatusCode.NOT_FOUND;
+            return new ResponseEntity<>("계정이 존재하지 않습니다.", HttpStatus.NOT_FOUND);
         }
 
         Map<String, String> email = createEmailSubjectAndBody(address);
 
-        int resultCode = emailUtils.sendEmail(email);
-
-        if (resultCode == StatusCode.OK) {
-            HttpSession session = request.getSession();
-            session.setAttribute(address, email.get("code"));
-            session.setMaxInactiveInterval(60);
+        try {
+            emailUtils.sendEmail(email);
+        } catch (ServiceException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return resultCode;
+        HttpSession session = request.getSession();
+        session.setAttribute(address, email.get("code"));
+        session.setMaxInactiveInterval(60);
+
+        return new ResponseEntity<>("메일 발송에 성공하였습니다.", HttpStatus.OK);
     }
 
     @PostMapping("/verifyCode")
