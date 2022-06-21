@@ -151,11 +151,16 @@ public class MemberController {
     }
 
     @PostMapping("/members/{memberId}/delete")
-    @ResponseBody
-    public int deleteMember(@PathVariable("memberId") Long memberId, @RequestBody Map<String, Object> param) {
-        String rawPwd = (String) param.get("pwd");
+    public String deleteMember(@PathVariable("memberId") Long memberId, @RequestParam("pwd") String pwd, Model model) {
+        try {
+            memberService.deleteMember(memberId, pwd);
 
-        return memberService.deleteMember(memberId, rawPwd);
+            return "redirect:/logout";
+        } catch (ServiceException e) {
+            model.addAttribute("message", e.getMessage());
+
+            return "error/404";
+        }
     }
 
     private Map<String, String> createEmailSubjectAndBody(String address) {

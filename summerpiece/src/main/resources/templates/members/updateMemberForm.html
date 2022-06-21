@@ -89,7 +89,7 @@
                       <div id="delete-confirmation" style="display: none;">
                         This action cannot be undone. If you want to continue the process, please enter the password.
                         <br><br>
-                        <form role="form" class="form-horizontal">
+                        <form role="form" class="form-horizontal" th:action="@{'/members/' + ${#authentication.principal} + '/delete'}" method="post">
                           <div class="form-group">
                             <label class="col-lg-2 control-label">Password</label>
                             <div class="col-lg-6">
@@ -98,7 +98,7 @@
                           </div>
                           <div class="form-group">
                             <div class="col-lg-offset-2 col-lg-10">
-                              <button class="btn btn-theme04" type="button" onclick="deleteAccount()">Delete</button>
+                              <button class="btn btn-theme04" type="submit">Delete</button>
                             </div>
                           </div>
                         </form>
@@ -120,10 +120,6 @@
   <!-- MAP SCRIPT - ALL CONFIGURATION IS PLACED HERE - VIEW OUR DOCUMENTATION FOR FURTHER INFORMATION -->
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASm3CwaK9qtcZEWYa-iQwHaGi3gcosAJc&sensor=false"></script>
   <script>
-    const CODES = {
-      OK: '200'
-    }
-
     const COLORS = {
       WRONG: "#A6444C"
     }
@@ -203,32 +199,6 @@
     function confirmDelete() {
       let deleteConfirmationArea = document.getElementById('delete-confirmation');
       deleteConfirmationArea.style.display = 'block';
-    }
-
-    function deleteAccount() {
-      let pwd = document.getElementById('confirm-delete-pwd').value;
-      let memberId = [[${#authentication.principal.id}]];
-
-      let param = {
-        "pwd": pwd
-      }
-
-      $.ajax({
-        url: "/members/" + memberId + "/delete",
-        type: "post",
-        data: JSON.stringify(param),
-        contentType: "application/json; charset=utf-8",
-        success: function(data) {
-          if (data == CODES.OK) {
-            location.href = "/logout";
-          } else {
-            alert('회원 탈퇴에 실패하였습니다.');
-          }
-        },
-        error: function(data) {
-
-        }
-      });
     }
   </script>
 </body>

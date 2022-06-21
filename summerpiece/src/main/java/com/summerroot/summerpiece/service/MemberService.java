@@ -1,7 +1,6 @@
 package com.summerroot.summerpiece.service;
 
 import com.summerroot.summerpiece.DTO.MemberDto;
-import com.summerroot.summerpiece.constants.StatusCode;
 import com.summerroot.summerpiece.domain.Member;
 import com.summerroot.summerpiece.exception.ServiceException;
 import com.summerroot.summerpiece.repository.MemberRepository;
@@ -52,16 +51,14 @@ public class MemberService {
         member.updatePwd(passwordEncoder.encode(newPwd));
     }
 
-    public int deleteMember(Long memberId, String rawPwd) {
+    public void deleteMember(Long memberId, String rawPwd) throws ServiceException {
         Member member = memberRepository.findOne(memberId);
         String encodedPwd = member.getPwd();
 
         if (passwordEncoder.matches(rawPwd, encodedPwd)) {
             member.deleteMember();
-
-            return StatusCode.OK;
         } else {
-            return StatusCode.NOT_FOUND;
+            throw new ServiceException("회원 탈퇴에 실패했습니다.");
         }
     }
 
