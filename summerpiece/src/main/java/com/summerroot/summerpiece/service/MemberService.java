@@ -73,15 +73,4 @@ public class MemberService {
 
         return member.getEmail();
     }
-
-    public boolean checkPwd(Long memberId, String oldPwd) {
-        Member member = memberRepository.findOne(memberId);
-        String encodedPwd = member.getPwd();
-
-        if (!passwordEncoder.matches(oldPwd, encodedPwd)) {
-            return false;
-        }
-
-        return true;
-    }
 }

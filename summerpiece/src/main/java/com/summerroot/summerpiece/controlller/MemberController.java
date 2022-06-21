@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,6 +39,7 @@ public class MemberController {
     private final MemberService memberService;
     private final MailService mailService;
     private final CalendarService calendarService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     /** by민정 : 회원가입(등록) */
     @PostMapping("/member")
@@ -78,13 +80,12 @@ public class MemberController {
 
     @PostMapping("/members/{memberId}/updatePwd")
     public String updateMemberPwd(@PathVariable("memberId") Long memberId, @RequestParam("oldPwd") String oldPwd, @RequestParam("newPwd") String newPwd, Model model) {
-        if (!isPwdMatched(memberId, oldPwd)) {
-            try {
-                throw new ServiceException("비밀번호 변경에 실패하였습니다.");
-            } catch (ServiceException e) {
-                model.addAttribute("message", e.getMessage());
-                return "error/404";
-            }
+        String savedPwd = memberService.findOne(memberId).getPwd();
+
+        if (!passwordEncoder.matches(oldPwd, savedPwd)) {
+            model.addAttribute("message", "비밀번호 변경에 실패했습니다.");
+
+            return "error/404";
         }
 
         memberService.updatePwd(memberId, newPwd);
@@ -241,10 +242,6 @@ public class MemberController {
         }
 
         return response;
-    }
-
-    private boolean isPwdMatched(Long memberId, String oldPwd) {
-        return memberService.checkPwd(memberId, oldPwd);
     }
 
     private String createVerificationCode() {
