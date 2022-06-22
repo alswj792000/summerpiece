@@ -111,7 +111,7 @@ public class MemberController {
             return new ResponseEntity<>("계정이 존재하지 않습니다.", HttpStatus.NOT_FOUND);
         }
 
-        Map<String, String> email = createEmailSubjectAndBody(address);
+        Map<String, String> email = createEmail(address);
 
         try {
             emailUtils.sendEmail(email);
@@ -119,40 +119,32 @@ public class MemberController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        HttpSession session = request.getSession();
-        session.setAttribute(address, email.get("code"));
-        session.setMaxInactiveInterval(60);
+        saveCodeInSession(request, email);
 
-        return new ResponseEntity<>("메일 발송에 성공하였습니다.", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/verifyCode")
     @ResponseBody
-    public int checkCode(HttpServletRequest request, @RequestBody Map<String, Object> params) {
+    public ResponseEntity<Object> checkCode(HttpServletRequest request, @RequestBody Map<String, Object> params) {
         String email = (String) params.get("email");
         String code = (String) params.get("code");
         String savedCode = (String) request.getSession().getAttribute(email);
 
-        if (savedCode == null) {
-            return StatusCode.NOT_FOUND;
+        if (savedCode == null || !savedCode.equals(code)) {
+            return new ResponseEntity<>("코드가 일치하지 않습니다.", HttpStatus.NOT_FOUND);
         }
 
-        if (savedCode.equals(code)) {
-            return StatusCode.OK;
-        } else {
-            return StatusCode.NOT_FOUND;
-        }
+        return new ResponseEntity<>("코드가 일치합니다.", HttpStatus.OK);
     }
 
     @PostMapping("/resetPwd")
     @ResponseBody
-    public int resetPwd(@RequestBody Map<String, Object> params) {
+    public void resetPwd(@RequestBody Map<String, Object> params) {
         String email = (String) params.get("email");
         String pwd = (String) params.get("pwd");
 
         memberService.resetPwd(email, pwd);
-
-        return StatusCode.OK;
     }
 
     @PostMapping("/members/{memberId}/delete")
@@ -168,7 +160,7 @@ public class MemberController {
         }
     }
 
-    private Map<String, String> createEmailSubjectAndBody(String address) {
+    private Map<String, String> createEmail(String address) {
         Map<String, String> email = new HashMap<>();
 
         email.put("address", address);
@@ -183,6 +175,12 @@ public class MemberController {
         email.put("body", body);
 
         return email;
+    }
+
+    private void saveCodeInSession(HttpServletRequest request, Map<String, String> email) {
+        HttpSession session = request.getSession();
+        session.setAttribute(email.get("address"), email.get("code"));
+        session.setMaxInactiveInterval(60);
     }
 
         /** 회원가입 : 이메일 인증코드 발급 */
