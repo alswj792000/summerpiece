@@ -12,6 +12,8 @@ import com.summerroot.summerpiece.service.MemberService;
 import com.summerroot.summerpiece.util.EmailUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -100,55 +102,49 @@ public class MemberController {
 
     @PostMapping("/sendCode")
     @ResponseBody
-    public int sendCode(HttpServletRequest request, @RequestBody Map<String, Object> param) {
+    public ResponseEntity<Object> sendCode(HttpServletRequest request, @RequestBody Map<String, Object> param) {
         String address = (String) param.get("email");
 
         try {
             memberSecuRepository.findByEmail(address).orElseThrow(() -> new UsernameNotFoundException((address)));
         } catch (Exception e) {
-            return StatusCode.NOT_FOUND;
+            return new ResponseEntity<>("계정이 존재하지 않습니다.", HttpStatus.NOT_FOUND);
         }
 
-        Map<String, String> email = createEmailSubjectAndBody(address);
+        Map<String, String> email = createEmail(address);
 
-        int resultCode = emailUtils.sendEmail(email);
-
-        if (resultCode == StatusCode.OK) {
-            HttpSession session = request.getSession();
-            session.setAttribute(address, email.get("code"));
-            session.setMaxInactiveInterval(60);
+        try {
+            emailUtils.sendEmail(email);
+        } catch (ServiceException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return resultCode;
+        saveCodeInSession(request, email);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/verifyCode")
     @ResponseBody
-    public int checkCode(HttpServletRequest request, @RequestBody Map<String, Object> params) {
+    public ResponseEntity<Object> checkCode(HttpServletRequest request, @RequestBody Map<String, Object> params) {
         String email = (String) params.get("email");
         String code = (String) params.get("code");
         String savedCode = (String) request.getSession().getAttribute(email);
 
-        if (savedCode == null) {
-            return StatusCode.NOT_FOUND;
+        if (savedCode == null || !savedCode.equals(code)) {
+            return new ResponseEntity<>("코드가 일치하지 않습니다.", HttpStatus.NOT_FOUND);
         }
 
-        if (savedCode.equals(code)) {
-            return StatusCode.OK;
-        } else {
-            return StatusCode.NOT_FOUND;
-        }
+        return new ResponseEntity<>("코드가 일치합니다.", HttpStatus.OK);
     }
 
     @PostMapping("/resetPwd")
     @ResponseBody
-    public int resetPwd(@RequestBody Map<String, Object> params) {
+    public void resetPwd(@RequestBody Map<String, Object> params) {
         String email = (String) params.get("email");
         String pwd = (String) params.get("pwd");
 
         memberService.resetPwd(email, pwd);
-
-        return StatusCode.OK;
     }
 
     @PostMapping("/members/{memberId}/delete")
@@ -164,7 +160,7 @@ public class MemberController {
         }
     }
 
-    private Map<String, String> createEmailSubjectAndBody(String address) {
+    private Map<String, String> createEmail(String address) {
         Map<String, String> email = new HashMap<>();
 
         email.put("address", address);
@@ -179,6 +175,12 @@ public class MemberController {
         email.put("body", body);
 
         return email;
+    }
+
+    private void saveCodeInSession(HttpServletRequest request, Map<String, String> email) {
+        HttpSession session = request.getSession();
+        session.setAttribute(email.get("address"), email.get("code"));
+        session.setMaxInactiveInterval(60);
     }
 
         /** 회원가입 : 이메일 인증코드 발급 */

@@ -44,8 +44,8 @@
                 <input type="text" class="form-control" name="email" placeholder="Email" autofocus onkeyup="checkEmailFormat()"><br>
                 <p id="email-msg-area"></p>
                 <button class="btn btn-theme btn-block" type="button" onclick="sendCode()">Send code</button><br>
-                <input type="text" class="form-control" name="code" placeholder="Verification code"><br>
-                <button class="btn btn-theme btn-block" type="button" onclick="verifyCode()">Verify code</button>
+                <input type="text" class="form-control" name="code" placeholder="Verification code" onkeyup="verifyCode()"><br>
+                <p id="code-msg-area"></p>
 
                 <hr>
 
@@ -84,6 +84,7 @@
     });
 
     const COLORS = {
+        CORRECT: "#43733C",
         WRONG: "#A6444C"
     }
 
@@ -128,20 +129,11 @@
             type: "POST",
             data: JSON.stringify(param),
             contentType: "application/json; charset=utf-8",
-            success: function(data) {
-                if (data == '200') {
-                    alert('메일 발송에 성공하였습니다.');
-                    isCodeSent = true;
-                } else if (data == '404') {
-                    alert('계정이 존재하지 않습니다.');
-                    isCodeSent = false;
-                } else {
-                    alert('메일 발송에 실패하였습니다.');
-                    isCodeSent = false;
-                }
+            success: function() {
+                isCodeSent = true;
             },
             error: function(data) {
-                alert('메일 발송에 실패하였습니다.');
+                alert(data.responseText);
                 isCodeSent = false;
             }
         });
@@ -162,21 +154,21 @@
             "code": code
         }
 
+        let codeMsgArea = document.getElementById("code-msg-area");
+
         $.ajax({
             url: "/verifyCode",
             type: "POST",
             data: JSON.stringify(params),
             contentType: "application/json; charset=utf-8",
             success: function(data) {
-                if (data == '200') {
-                    alert('코드가 일치합니다.');
-                    isCodeSame = true;
-                } else {
-                    alert('코드가 일치하지 않습니다.');
-                    isCodeSame = false;
-                }
+                codeMsgArea.innerHTML = data;
+                codeMsgArea.style.color = COLORS.CORRECT;
+                isCodeSame = true;
             },
             error: function(data) {
+                codeMsgArea.innerHTML = data.responseText;
+                codeMsgArea.style.color = COLORS.WRONG;
                 isCodeSame = false;
             }
         });
@@ -228,10 +220,10 @@
             type: "POST",
             data: JSON.stringify(params),
             contentType: "application/json; charset=utf-8",
-            success: function(data) {
+            success: function() {
                 location.href = "/login";
             },
-            error: function(data) {
+            error: function() {
 
             }
         });
